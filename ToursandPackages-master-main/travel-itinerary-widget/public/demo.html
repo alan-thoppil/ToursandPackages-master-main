@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Itinerary Widget — Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #030A14;
+      font-family: system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .page-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .page-header h1 {
+      color: #E2E8F0;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      font-weight: 700;
+      margin-bottom: .5rem;
+    }
+    .page-header p { color: #475569; font-size: .9rem; }
+    .widget-wrapper {
+      max-width: 720px;
+      margin: 0 auto;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.05), 0 32px 80px rgba(0,0,0,.6);
+    }
+    /* The widget target */
+    #itinerary-widget {}
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>✈️ Travel Itinerary Planner</h1>
+    <p>AI-powered day planner for train travelers</p>
+  </div>
+
+  <div class="widget-wrapper">
+    <!-- ★ THIS IS ALL YOU NEED IN YOUR OWN WEBSITE ★ -->
+    <div id="itinerary-widget"></div>
+  </div>
+
+  <!-- Widget script — point data-api-base to your server -->
+  <script
+    src="/widget/itinerary-widget.js"
+    data-api-base="http://localhost:3001"
+    data-target="#itinerary-widget">
+  </script>
+</body>
+</html>
