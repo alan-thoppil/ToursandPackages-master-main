@@ -49,21 +49,21 @@
     .tiw-root {
       font-family: 'Plus Jakarta Sans', sans-serif;
       color: #FFFFFF !important; line-height: 1.5;
-      background: rgba(255, 255, 255, 0.01) !important; 
-      backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); 
+      background: transparent !important; 
+      backdrop-filter: none; -webkit-backdrop-filter: none; 
       border-radius: 28px;
       overflow: hidden; max-width: 800px; margin: 0 auto;
       box-shadow: none;
       border: 1px solid rgba(255, 255, 255, 0.1);
       text-align: left;
       transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
     .tiw-root:hover {
-      background: rgba(255, 255, 255, 0.15) !important;
+      background: rgba(15, 23, 42, 0.4) !important;
       backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-      border-color: rgba(255, 255, 255, 0.5);
-      box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-      transform: translateY(-5px);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.4);
     }
 
     /* CRITICAL: Force inputs to be visible in dark themes */

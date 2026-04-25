@@ -249,52 +249,6 @@ const Home = () => {
             </div>
           </div>
         </motion.div>
-
-        {/* Live Travel Camera Section */}
-        <section className="max-w-6xl mx-auto px-4 pt-12 pb-24">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-white dark:bg-slate-800 rounded-[32px] p-8 md:p-12 shadow-[0_30px_100px_rgba(0,0,0,0.04)] border border-slate-100 dark:border-slate-700 relative overflow-hidden group"
-          >
-            {/* Live Indicator */}
-            <div className="flex items-center gap-3 mb-8">
-              <div className="relative flex items-center justify-center">
-                <span className="absolute w-3 h-3 bg-orange-500 rounded-full animate-ping opacity-75"></span>
-                <span className="relative w-2.5 h-2.5 bg-orange-500 rounded-full"></span>
-              </div>
-              <span className="text-orange-500 font-black text-xs md:text-sm uppercase tracking-[0.3em]">Live Travel Camera</span>
-            </div>
-
-            <div className="flex flex-col md:flex-row justify-between items-end gap-8 relative z-10">
-              <div className="space-y-2">
-                <h2 className="text-5xl md:text-7xl font-serif italic font-bold text-slate-900 dark:text-white leading-tight">
-                  Mount Fuji, <span className="text-slate-400 dark:text-slate-500">Japan</span>
-                </h2>
-                <p className="text-slate-500 dark:text-slate-400 text-xl font-medium">Iconic peaks & blooming cherry blossoms</p>
-              </div>
-
-              {/* Progress/Status Bar */}
-              <div className="w-full md:w-64 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-4">
-                <motion.div
-                  initial={{ width: "0%" }}
-                  whileInView={{ width: "85%" }}
-                  transition={{ duration: 2, ease: "easeOut" }}
-                  className="h-full bg-orange-500 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.4)]"
-                ></motion.div>
-              </div>
-            </div>
-
-            {/* Background Decorative Element (Subtle Camera Grid) */}
-            <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-              <span className="material-symbols-outlined text-[120px] dark:text-white">videocam</span>
-            </div>
-            
-            {/* Live Video Simulation Overlay Effect */}
-            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent dark:from-slate-800 opacity-20 pointer-events-none"></div>
-          </motion.div>
-        </section>
       </div>
 
       <section className="relative max-w-7xl mx-auto px-4 py-24 overflow-hidden">
