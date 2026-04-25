@@ -30,8 +30,20 @@ const AiTripPlanner = () => {
 
   return (
     <div className="min-h-screen w-full bg-slate-900 pt-32 pb-20 px-4 flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Animated Sky Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-blue-900 via-indigo-900 to-slate-900 z-0"></div>
+      {/* Cinematic Travel Background */}
+      <motion.div 
+        initial={{ scale: 1.15 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 20, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ 
+          backgroundImage: "url('/ai_trip_planner_bg.png')",
+          filter: "brightness(0.5) saturate(1.1)"
+        }}
+      >
+        {/* Subtle Gradient Overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-transparent to-slate-900/90"></div>
+      </motion.div>
       
       {/* Stars/Particles Effect */}
       <div className="absolute inset-0 opacity-30 z-0">

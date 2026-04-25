@@ -22,61 +22,182 @@ const Home = () => {
       transition={{ duration: 0.5 }}
     >
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[110vh] flex items-center justify-center overflow-hidden">
+        {/* Background Image Layer */}
         <motion.div
-          initial={{ scale: 1.2, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="absolute inset-0 bg-cover bg-center"
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 10, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
+          className="absolute inset-0 z-0 bg-cover bg-center"
           style={{
-            backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuDvJyVEjiWsCjGyQCJoJOKZ5tLzaPDpFYPLCB7Vv-0Zm6pH84GI-PrpwnAjhQLox3yG8MK_LwqPKzkq2_gMRMpsTeRQaRBn_QEosONchZTiD3-MKQR-otLe2_rhjF4GS8PyruZOog_y9sDV7kRc57zOyme_Y-VL5YlOnbVjMVdaXtjKHLVMPVhEm8NVmV7SDIZczpUG5Ppbk5wefQndrfl87GyRvAd3BOBY-MY6fDcU003Dd412hTANhSObZgXg2pso3-FhRokK6r0')",
+            backgroundImage: "url('/hero_cinematic_v4.png')",
             backgroundAttachment: "fixed"
           }}
         ></motion.div>
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pb-24">
-          <motion.h2
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-[1.1] font-serif"
+        
+        {/* Cinematic Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 via-slate-900/20 to-transparent z-[1]"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent z-[1]"></div>
+
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 pt-40 pb-32">
+          {/* Top Label - Lowered and reduced size to avoid navbar conflict */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex items-center gap-2 text-teal-400 font-bold tracking-[0.2em] uppercase text-[9px] md:text-[10px] mb-8"
           >
-            Your Day, <br />
-            <span className="text-secondary italic font-serif">Perfectly Mapped.</span>
-          </motion.h2>
-          <motion.p
+            <span className="material-symbols-outlined text-[14px]">flight</span>
+            <span>Explore. Experience. Remember.</span>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Side: Content */}
+            <div className="text-left max-w-2xl">
+              <motion.h1
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="text-base md:text-lg text-white/70 mb-8 max-w-2xl mx-auto font-medium"
+            transition={{ duration: 1, delay: 0.8 }}
+            className="text-[32px] md:text-[72px] leading-[1.1] font-black text-white tracking-tighter drop-shadow-2xl mb-6"
           >
-            Arriving somewhere new? Let your perfect day unfold — from must-see spots to hidden gems, crafted into a journey you'll truly enjoy.
-          </motion.p>
+            Your Journey,
+            <span className="text-teal-400 italic block mt-1 font-serif font-light text-[28px] md:text-[64px]">Our Expertise.</span>
+          </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+                className="text-base md:text-lg text-white/80 mb-12 max-w-lg leading-relaxed font-medium"
+              >
+                Discover breathtaking destinations, handpicked experiences, and unforgettable adventures crafted just for you.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.9 }}
+                className="flex items-center gap-8"
+              >
+                <button
+                  onClick={() => document.getElementById('itinerary-planner').scrollIntoView({ behavior: 'smooth' })}
+                  className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-3.5 rounded-full text-base font-bold shadow-xl shadow-teal-500/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-3"
+                >
+                  <div className="bg-white/20 rounded-full p-1 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-sm font-bold">explore</span>
+                  </div>
+                  <span>Start Exploring</span>
+                </button>
+                
+                <button className="text-white text-base font-bold flex items-center gap-3 group transition-opacity hover:opacity-80">
+                  <span className="material-symbols-outlined text-3xl font-light">play_circle</span>
+                  <span>Watch Video</span>
+                </button>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Glassmorphism Feature Bar */}
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 1 }}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 1.2 }}
+            className="mt-8 w-full max-w-5xl hidden md:block"
           >
-            <button
-              onClick={() => document.getElementById('itinerary-planner').scrollIntoView({ behavior: 'smooth' })}
-              className="group relative overflow-hidden bg-primary text-white px-10 py-4 rounded-full text-lg font-bold shadow-2xl shadow-primary/30 transition-all hover:scale-105 hover:shadow-primary/50 active:scale-95 flex items-center gap-3 mx-auto"
-            >
-              <span className="material-symbols-outlined fill-1 text-xl">explore</span>
-              <span className="relative z-10 tracking-wide">Start Exploring</span>
-              <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            </button>
+            <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 grid grid-cols-4 gap-4 items-center shadow-2xl">
+              {[
+                { icon: 'explore', title: 'Handpicked Destinations', sub: 'Only the best places around the world.' },
+                { icon: 'diversity_3', title: 'Expert Guides', sub: 'Travel with local experts and insiders.' },
+                { icon: 'verified_user', title: 'Safe & Reliable', sub: 'Your safety and comfort are our priority.' },
+                { icon: 'support_agent', title: '24/7 Support', sub: 'We\'re here for you, anytime, anywhere.' }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 px-4 py-2 border-r border-white/5 last:border-none">
+                  <div className="w-10 h-10 rounded-full bg-teal-500/20 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-teal-400 text-xl">{item.icon}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-white text-[13px] font-bold tracking-tight mb-0.5">{item.title}</span>
+                    <span className="text-white/40 text-[9px] leading-tight font-medium">{item.sub}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </div>
       </section>
 
+
+
+
       <div id="itinerary-planner" className="bg-slate-50 dark:bg-slate-900 relative z-20">
 
-        {/* Floating Search Bar (The "Table") */}
+        {/* Categories Section (Moved Above) */}
+        <section className="max-w-6xl mx-auto px-4 pb-12 pt-8 relative group">
+          <style dangerouslySetInnerHTML={{
+            __html: `
+          .hide-scroll::-webkit-scrollbar { display: none; }
+          .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        `}} />
+
+          <button
+            onClick={() => scrollCategories('left')}
+            className="absolute left-2 md:-left-14 top-[35%] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-slate-700 hover:text-primary hover:scale-110 transition-all z-10 opacity-0 group-hover:opacity-100 border border-slate-100 hidden md:flex"
+          >
+            <span className="material-symbols-outlined text-2xl">chevron_left</span>
+          </button>
+
+          <button
+            onClick={() => scrollCategories('right')}
+            className="absolute right-2 md:-right-14 top-[35%] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-slate-700 hover:text-primary hover:scale-110 transition-all z-10 opacity-0 group-hover:opacity-100 border border-slate-100 hidden md:flex"
+          >
+            <span className="material-symbols-outlined text-2xl">chevron_right</span>
+          </button>
+
+          <div ref={categoryScrollRef} className="flex overflow-x-auto gap-0 pt-8 pb-4 items-start snap-x hide-scroll w-full smooth-scroll" style={{ scrollBehavior: 'smooth' }}>
+            {[
+              { name: "Stay", img: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=400&h=400&fit=crop" },
+              { name: "Animal Sightseeing", img: "https://images.unsplash.com/photo-1549366021-9f761d450615?w=400&h=400&fit=crop" },
+              { name: "Nature", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=400&fit=crop" },
+              { name: "Night Camp", img: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400&h=400&fit=crop" },
+              { name: "Hiking", img: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=400&fit=crop" },
+              { name: "Safari", img: "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=400&h=400&fit=crop" },
+              { name: "Culture", img: "https://images.unsplash.com/photo-1514539079130-25950c84af65?w=400&h=400&fit=crop" },
+              { name: "Boating", img: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&h=400&fit=crop" },
+              { name: "Diving", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=400&fit=crop" },
+              { name: "Food & Wine", img: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop" },
+              { name: "Wellness", img: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&h=400&fit=crop" }
+            ].map((cat, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ scale: 1.05, y: -5 }}
+                whileTap={{ scale: 0.95 }}
+                className="snap-start flex-none w-[calc(100%/3)] md:w-[calc(100%/4)] lg:w-[calc(100%/6)] flex flex-col items-center gap-4 cursor-pointer group outline-none"
+                onClick={() => navigate(`/suggestions?category=${encodeURIComponent(cat.name)}`)}
+                title={`Find ${cat.name} near me`}
+              >
+                <div
+                  className="w-32 h-32 lg:w-40 lg:h-40 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 group-hover:shadow-2xl bg-cover bg-center border-[6px] border-white dark:border-slate-800 ring-4 ring-[#6B8E23]/80 group-hover:ring-[#556B2F]"
+                  style={{ backgroundImage: `url(${cat.img})` }}
+                >
+                  <div className="w-full h-full rounded-full bg-black/10 group-hover:bg-black/0 transition-all duration-500"></div>
+                </div>
+                <span className="text-base font-bold text-slate-700 dark:text-slate-300 group-hover:text-primary transition-colors">{cat.name}</span>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Floating Search Bar (Moved Down) */}
         <motion.div
-          initial={{ y: 60, opacity: 0 }}
+          initial={{ y: 120, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
-          className="max-w-6xl mx-auto px-4 relative z-30 mt-8 pb-8"
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ 
+            duration: 1.2, 
+            ease: [0.16, 1, 0.3, 1], // Custom cubic-bezier for a smooth deceleration
+            opacity: { duration: 0.8 }
+          }}
+          className="max-w-6xl mx-auto px-4 relative z-30 mt-4 pb-20"
         >
           <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-6 md:p-8 flex flex-col md:flex-row gap-6 items-end border border-slate-100 dark:border-slate-700">
 
@@ -126,80 +247,76 @@ const Home = () => {
                 <span className="material-symbols-outlined text-[20px] font-bold">search</span> SEARCH
               </button>
             </div>
-
           </div>
         </motion.div>
 
-        <section className="max-w-6xl mx-auto px-4 pb-20 pt-8 relative group">
-          <style dangerouslySetInnerHTML={{
-            __html: `
-          .hide-scroll::-webkit-scrollbar { display: none; }
-          .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        `}} />
-
-          <button
-            onClick={() => scrollCategories('left')}
-            className="absolute left-2 md:-left-14 top-[35%] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-slate-700 hover:text-primary hover:scale-110 transition-all z-10 opacity-0 group-hover:opacity-100 border border-slate-100 hidden md:flex"
+        {/* Live Travel Camera Section */}
+        <section className="max-w-6xl mx-auto px-4 pt-12 pb-24">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-white dark:bg-slate-800 rounded-[32px] p-8 md:p-12 shadow-[0_30px_100px_rgba(0,0,0,0.04)] border border-slate-100 dark:border-slate-700 relative overflow-hidden group"
           >
-            <span className="material-symbols-outlined text-2xl">chevron_left</span>
-          </button>
+            {/* Live Indicator */}
+            <div className="flex items-center gap-3 mb-8">
+              <div className="relative flex items-center justify-center">
+                <span className="absolute w-3 h-3 bg-orange-500 rounded-full animate-ping opacity-75"></span>
+                <span className="relative w-2.5 h-2.5 bg-orange-500 rounded-full"></span>
+              </div>
+              <span className="text-orange-500 font-black text-xs md:text-sm uppercase tracking-[0.3em]">Live Travel Camera</span>
+            </div>
 
-          <button
-            onClick={() => scrollCategories('right')}
-            className="absolute right-2 md:-right-14 top-[35%] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-slate-700 hover:text-primary hover:scale-110 transition-all z-10 opacity-0 group-hover:opacity-100 border border-slate-100 hidden md:flex"
-          >
-            <span className="material-symbols-outlined text-2xl">chevron_right</span>
-          </button>
+            <div className="flex flex-col md:flex-row justify-between items-end gap-8 relative z-10">
+              <div className="space-y-2">
+                <h2 className="text-5xl md:text-7xl font-serif italic font-bold text-slate-900 dark:text-white leading-tight">
+                  Mount Fuji, <span className="text-slate-400 dark:text-slate-500">Japan</span>
+                </h2>
+                <p className="text-slate-500 dark:text-slate-400 text-xl font-medium">Iconic peaks & blooming cherry blossoms</p>
+              </div>
 
-          <div ref={categoryScrollRef} className="flex overflow-x-auto gap-0 pt-8 pb-12 items-start snap-x hide-scroll w-full smooth-scroll" style={{ scrollBehavior: 'smooth' }}>
-            {[
-              { name: "Stay", img: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=400&h=400&fit=crop" },
-              { name: "Animal Sightseeing", img: "https://images.unsplash.com/photo-1549366021-9f761d450615?w=400&h=400&fit=crop" },
-              { name: "Nature", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=400&fit=crop" },
-              { name: "Night Camp", img: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400&h=400&fit=crop" },
-              { name: "Hiking", img: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=400&fit=crop" },
-              { name: "Safari", img: "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=400&h=400&fit=crop" },
-              { name: "Culture", img: "https://images.unsplash.com/photo-1514539079130-25950c84af65?w=400&h=400&fit=crop" },
-              { name: "Boating", img: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&h=400&fit=crop" },
-              { name: "Diving", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=400&fit=crop" },
-              { name: "Food & Wine", img: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop" },
-              { name: "Wellness", img: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&h=400&fit=crop" }
-            ].map((cat, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
-                className="snap-start flex-none w-[calc(100%/3)] md:w-[calc(100%/4)] lg:w-[calc(100%/6)] flex flex-col items-center gap-4 cursor-pointer group outline-none"
-                onClick={() => navigate(`/suggestions?category=${encodeURIComponent(cat.name)}`)}
-                title={`Find ${cat.name} near me`}
-              >
-                <div
-                  className="w-32 h-32 lg:w-40 lg:h-40 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 group-hover:shadow-2xl bg-cover bg-center border-[6px] border-white dark:border-slate-800 ring-4 ring-[#6B8E23]/80 group-hover:ring-[#556B2F]"
-                  style={{ backgroundImage: `url(${cat.img})` }}
-                >
-                  <div className="w-full h-full rounded-full bg-black/10 group-hover:bg-black/0 transition-all duration-500"></div>
-                </div>
-                <span className="text-base font-bold text-slate-700 dark:text-slate-300 group-hover:text-primary transition-colors">{cat.name}</span>
-              </motion.div>
-            ))}
-          </div>
+              {/* Progress/Status Bar */}
+              <div className="w-full md:w-64 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-4">
+                <motion.div
+                  initial={{ width: "0%" }}
+                  whileInView={{ width: "85%" }}
+                  transition={{ duration: 2, ease: "easeOut" }}
+                  className="h-full bg-orange-500 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                ></motion.div>
+              </div>
+            </div>
+
+            {/* Background Decorative Element (Subtle Camera Grid) */}
+            <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+              <span className="material-symbols-outlined text-[120px] dark:text-white">videocam</span>
+            </div>
+            
+            {/* Live Video Simulation Overlay Effect */}
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent dark:from-slate-800 opacity-20 pointer-events-none"></div>
+          </motion.div>
         </section>
       </div>
 
-      <section className="relative max-w-7xl mx-auto px-4 py-24 overflow-hidden bg-white dark:bg-slate-950">
-        {/* Zigzag Top Divider */}
-        <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0] z-10">
-          <svg className="relative block w-[calc(100%+1.3px)] h-[30px]" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 0l30 40L60 0l30 40L120 0l30 40L180 0l30 40L240 0l30 40L300 0l30 40L330 0l30 40L390 0l30 40L420 0l30 40L450 0l30 40L480 0l30 40L510 0l30 40L540 0l30 40L570 0l30 40L600 0l30 40L630 0l30 40L660 0l30 40L690 0l30 40L720 0l30 40L750 0l30 40L780 0l30 40L810 0l30 40L840 0l30 40L870 0l30 40L900 0l30 40L930 0l30 40L960 0l30 40L990 0l30 40L1020 0l30 40L1050 0l30 40L1080 0l30 40L1110 0l30 40L1140 0l30 40L1170 0l30 40L1200 0v120H0z" className="fill-slate-50 dark:fill-slate-900"></path>
-          </svg>
+      <section className="relative max-w-7xl mx-auto px-4 py-24 overflow-hidden">
+        {/* Background Image Layer */}
+        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
+          <img 
+            src="/featured_experiences_highres.png" 
+            className="w-full h-full object-cover" 
+            alt="Background"
+          />
         </div>
+        {/* Softer Gradient Overlay to keep text readable but image visible */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-r from-white/40 via-transparent to-white/40 dark:from-slate-950/40 dark:via-transparent dark:to-slate-950/40 pointer-events-none"></div>
+
+
         
         <motion.div 
           initial={{ y: 40, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: false, amount: 0.1 }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 flex flex-col md:flex-row justify-between items-center mb-16 gap-10"
+          className="relative z-10 flex flex-col md:flex-row justify-between items-center mb-16 gap-10 pl-4 md:pl-12"
         >
           <div className="flex flex-col items-start text-left md:w-1/2">
             <motion.h3
