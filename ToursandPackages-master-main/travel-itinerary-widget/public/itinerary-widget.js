@@ -989,19 +989,8 @@
         });
 
         if (items.length > 1) {
-          let unvisited = [...items];
-          let ordered = [unvisited.shift()];
-          let current = ordered[0];
-
-          while (unvisited.length > 0) {
-            let nearestIdx = 0, minDist = Infinity;
-            unvisited.forEach((u, idx) => {
-              const d = Math.pow(parseFloat(current.lon) - parseFloat(u.lon), 2) + Math.pow(parseFloat(current.lat) - parseFloat(u.lat), 2);
-              if (d < minDist) { minDist = d; nearestIdx = idx; }
-            });
-            current = unvisited.splice(nearestIdx, 1)[0];
-            ordered.push(current);
-          }
+          // Fix route logic: Draw route in exact order provided (Arrival -> Suggested -> Departure)
+          const ordered = [...items];
           
           const coords = ordered.map(i => `${i.lon},${i.lat}`);
           const modeMap = { CAR: "driving", BIKE: "cycling", WALK: "walking", BUS: "driving" };
@@ -1073,8 +1062,9 @@
   function renderCustomStops(root) {
     const list = root.querySelector("#tiw-custom-stops-list");
     list.innerHTML = state.customStops.map((stop, idx) => `
-      <div class="tiw-stop-input-row">
-        <input type="text" class="tiw-custom-stop-input" data-idx="${idx}" value="${stop}" placeholder="e.g. Specific Beach or Cafe" style="flex:1; padding:0.85rem; border-radius:10px; border:1px solid #F1F5F9; font-size:0.9rem">
+      <div class="tiw-stop-input-row tiw-autocomplete-container">
+        <input type="text" id="tiw-custom-stop-${idx}" class="tiw-custom-stop-input" data-idx="${idx}" value="${stop}" placeholder="e.g. Specific Beach or Cafe" autocomplete="off" style="flex:1; padding:0.85rem; border-radius:10px; border:1px solid #F1F5F9; font-size:0.9rem; background:#fff !important; color:#0F172A !important">
+        <div id="tiw-suggestions-custom-${idx}" class="tiw-suggestions"></div>
         <button class="tiw-btn-remove" data-idx="${idx}">×</button>
       </div>
     `).join("");
@@ -1084,6 +1074,10 @@
     });
     list.querySelectorAll(".tiw-btn-remove").forEach(btn => {
       btn.onclick = () => { state.customStops.splice(btn.dataset.idx, 1); renderCustomStops(root); };
+    });
+
+    state.customStops.forEach((_, idx) => {
+      setupAutocomplete(`tiw-custom-stop-${idx}`, `tiw-suggestions-custom-${idx}`);
     });
   }
 

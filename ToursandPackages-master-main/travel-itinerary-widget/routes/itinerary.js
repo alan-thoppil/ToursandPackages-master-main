@@ -248,7 +248,12 @@ function buildPrompt({
       : `(No OSM data — use your knowledge of famous local spots in ${dest})`;
 
   const customStopsBlock = customStops && customStops.length > 0
-    ? `USER'S MUST-VISIT LOCATIONS (Incorporate these into the sequence):\n${customStops.map(s => `- ${s}`).join('\n')}`
+    ? `USER'S MUST-VISIT LOCATIONS (Incorporate these into the sequence):\n${customStops.map(s => {
+        if (typeof s === 'object') {
+          return `- ${s.name} [Coords: ${s.lat}, ${s.lon}]`;
+        }
+        return `- ${s}`;
+      }).join('\n')}`
     : '';
 
   return {
@@ -400,7 +405,13 @@ router.post("/", async (req, res) => {
           ]);
         }
 
-        if (!depCoords) return 30;
+        if (!arrCoords) {
+          throw new Error(`Invalid Arrival Point: "${arrivalPoint}". Please enter a valid location.`);
+        }
+        if (!depCoords) {
+          throw new Error(`Invalid Departure Point: "${departurePoint}". Please enter a valid location.`);
+        }
+
         return cachedTravelTime(
           cityCenterCoords.lat, cityCenterCoords.lon,
           depCoords.lat, depCoords.lon,
@@ -412,6 +423,21 @@ router.post("/", async (req, res) => {
     let weatherData = null;
     if (cityCenterCoords && (weatherAdaptive || weatherAdaptive === 'true')) {
       weatherData = await _fetchWeather(cityCenterCoords.lat, cityCenterCoords.lon);
+    }
+
+    // Geocode custom stops for high precision
+    let geocodedCustomStops = customStops || [];
+    if (customStops && customStops.length > 0) {
+      geocodedCustomStops = await Promise.all(customStops.map(async (stopName) => {
+        if (!stopName.trim()) return stopName;
+        try {
+          const query = `${stopName}, ${dest}`;
+          const coords = await cachedGeocode(query, (q, prox) => _geocode(q, prox, cityBbox), cityCenterCoords)
+            .catch(() => cachedGeocode(stopName, (q) => _geocode(q, null, null)));
+          if (coords) return { name: stopName, lat: coords.lat, lon: coords.lon };
+        } catch(e) {}
+        return stopName;
+      }));
     }
 
     log.debug("Data gathered", { reqId, poisCount: pois.length, travelMins, arrCoords, depCoords, hasWeather: !!weatherData });
@@ -434,7 +460,7 @@ router.post("/", async (req, res) => {
       groupSize,
       transportMode,
       weatherAdaptive,
-      customStops,
+      customStops: geocodedCustomStops,
       weatherData,
       cityCenterCoords,
       arrivalDate,
