@@ -49,21 +49,21 @@
     .tiw-root {
       font-family: 'Plus Jakarta Sans', sans-serif;
       color: #FFFFFF !important; line-height: 1.5;
-      background: transparent !important; 
-      backdrop-filter: none; -webkit-backdrop-filter: none; 
+      background: rgba(15, 23, 42, 0.1) !important; 
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
       border-radius: 28px;
       overflow: hidden; max-width: 800px; margin: 0 auto;
-      box-shadow: none;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       text-align: left;
       transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
     .tiw-root:hover {
-      background: rgba(15, 23, 42, 0.4) !important;
+      background: rgba(15, 23, 42, 0.3) !important;
       backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-      border-color: rgba(255, 255, 255, 0.25);
-      box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
     }
 
     /* CRITICAL: Force inputs to be visible in dark themes */
@@ -134,7 +134,8 @@
     .tiw-btn-ghost:hover { background: #0D9488; transform: translateY(-2px); }
 
     .tiw-card {
-      background: #F8FAFC; border: 1px solid #E2E8F0;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
       border-radius: 18px; padding: 1.75rem;
     }
 
@@ -149,10 +150,11 @@
     .tiw-timeline-item.tiw-visible { opacity: 1; transform: translateX(0); }
 
     .tiw-stop-card {
-      flex: 1; background: #FFFFFF !important;
-      border: 1px solid #E2E8F0; border-radius: 0 14px 14px 14px;
+      flex: 1; background: rgba(255, 255, 255, 0.08) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0 14px 14px 14px;
       padding: 1.5rem; border-left-width: 4px; border-left-style: solid;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
     }
 
     .tiw-pill {
@@ -219,9 +221,10 @@
 
     .tiw-suggestions {
       position: absolute; top: 100%; left: 0; right: 0; z-index: 1000;
-      background: white; border-radius: 12px; margin-top: 8px;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
-      border: 1px solid #E2E8F0; overflow: hidden; display: none;
+      background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px);
+      border-radius: 12px; margin-top: 8px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+      border: 1px solid rgba(255, 255, 255, 0.2); overflow: hidden; display: none;
     }
     .tiw-suggestion-item {
       padding: 14px 18px; cursor: pointer; display: flex; align-items: flex-start; gap: 14px;
@@ -289,14 +292,12 @@
         </p>
         <div style="display:flex; flex-direction:column; gap:1.2rem; align-items:center">
           <button class="tiw-btn-primary" id="tiw-btn-detect" style="min-width:260px; padding: 1.2rem">⚡ Map My Perfect Day</button>
-          <button class="tiw-btn-primary" id="tiw-btn-transport-mode" style="min-width:260px; padding: 1.2rem; background: #6366F1; box-shadow: 0 4px 15px rgba(99,102,241,0.25)">🚀 Inter-city Transport</button>
-          <button class="tiw-btn-ghost" id="tiw-btn-manual" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2)">Enter Destination Manually</button>
         </div>
       </div>
 
       <!-- PHASE: TRANSPORT SETUP -->
-      <div id="tiw-ph-transport" class="tiw-phase" style="padding:3.5rem 2.5rem; background: #FFFFFF; border-radius: 28px;">
-        <h3 style="font-size:1.6rem; font-weight:800; margin-bottom:2rem; border-left:5px solid #6366F1; padding-left:1.2rem; color:#0F172A">Inter-city Planner</h3>
+      <div id="tiw-ph-transport" class="tiw-phase" style="padding:3.5rem 2.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 28px; backdrop-filter: blur(10px);">
+        <h3 style="font-size:1.6rem; font-weight:800; margin-bottom:2rem; border-left:5px solid #6366F1; padding-left:1.2rem; color:#FFFFFF">Inter-city Planner</h3>
         
         <div style="margin-bottom:2rem; position:relative">
           <label style="display:block; font-size:.8rem; font-weight:800; text-transform:uppercase; color:#64748B; margin-bottom:.8rem; letter-spacing:.05em">Origin City</label>
@@ -319,9 +320,9 @@
       </div>
 
       <!-- PHASE: TRANSPORT RESULTS -->
-      <div id="tiw-ph-transport-results" class="tiw-phase" style="padding:3.5rem 2.5rem; background: #FFFFFF; border-radius: 28px;">
-        <h3 style="font-size:1.6rem; font-weight:800; margin-bottom:1rem; color:#0F172A">Travel Options</h3>
-        <p id="tiw-transport-route-title" style="color:#64748B; font-weight:600; margin-bottom:2.5rem"></p>
+      <div id="tiw-ph-transport-results" class="tiw-phase" style="padding:3.5rem 2.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 28px; backdrop-filter: blur(10px);">
+        <h3 style="font-size:1.6rem; font-weight:800; margin-bottom:1rem; color:#FFFFFF">Travel Options</h3>
+        <p id="tiw-transport-route-title" style="color:#CBD5E1; font-weight:600; margin-bottom:2.5rem"></p>
         
         <div id="tiw-transport-list" style="display:flex; flex-direction:column; gap:1.5rem; margin-bottom: 2rem"></div>
         
@@ -336,8 +337,8 @@
       </div>
 
       <!-- PHASE: SETUP -->
-      <div id="tiw-ph-setup" class="tiw-phase" style="padding:3.5rem 2.5rem; background: #FFFFFF; border-radius: 28px;">
-        <h3 style="font-size:1.6rem; font-weight:800; margin-bottom:2rem; border-left:5px solid #14B8A6; padding-left:1.2rem; color:#0F172A">Plan Your Tour</h3>
+      <div id="tiw-ph-setup" class="tiw-phase" style="padding:3.5rem 2.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 28px; backdrop-filter: blur(10px);">
+        <h3 style="font-size:1.6rem; font-weight:800; margin-bottom:2rem; border-left:5px solid #14B8A6; padding-left:1.2rem; color:#FFFFFF">Plan Your Tour</h3>
         
         <!-- TRAVEL CONTEXT TOGGLE -->
         <div style="background: #F1F5F9; border-radius: 16px; padding: 6px; display: flex; gap: 4px; margin-bottom: 2rem">
@@ -451,11 +452,11 @@
       </div>
 
       <!-- PHASE: ITINERARY -->
-      <div id="tiw-ph-itinerary" class="tiw-phase">
-        <div id="tiw-hero" style="background:linear-gradient(160deg,#F8FAFC 0%,#F1F5F9 100%);padding:3rem 2rem 3.5rem;text-align:center;border-bottom:1px solid #E2E8F0;position:relative;overflow:hidden">
+      <div id="tiw-ph-itinerary" class="tiw-phase" style="background: rgba(255, 255, 255, 0.02); border-radius: 28px;">
+        <div id="tiw-hero" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); padding:3rem 2rem 3.5rem; text-align:center; border-bottom:1px solid rgba(255,255,255,0.1); position:relative; overflow:hidden">
           <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 50% 0%,rgba(20,184,166,0.08),transparent 70%);pointer-events:none"></div>
           <p id="tiw-eyebrow" style="color:#14B8A6;font-size:.75rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.6rem">Your Day in</p>
-          <h2 id="tiw-city" style="font-family:'Playfair Display',serif;font-size:clamp(2rem,6vw,3.5rem);font-weight:700;color:#0F172A;margin-bottom:.6rem;line-height:1.1;text-transform:capitalize">—</h2>
+          <h2 id="tiw-city" style="font-family:'Playfair Display',serif;font-size:clamp(2rem,6vw,3.5rem);font-weight:700;color:#FFFFFF;margin-bottom:.6rem;line-height:1.1;text-transform:capitalize">—</h2>
           <p id="tiw-tagline" style="color:#334155;font-style:italic;font-size:1.1rem;margin-bottom:1.5rem;max-width:500px;margin-left:auto;margin-right:auto">—</p>
           <div id="tiw-pref-summary" style="display:flex;justify-content:center;gap:1.2rem;margin-bottom:2rem;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#94A3B8"></div>
           <div id="tiw-badges" style="display:flex;justify-content:center;gap:.8rem;flex-wrap:wrap;margin-bottom:1.2rem"></div>
@@ -1034,8 +1035,6 @@
       
       // Basic Actions
       root.querySelector("#tiw-btn-detect").onclick = () => detectLocation(root);
-      root.querySelector("#tiw-btn-transport-mode").onclick = () => { showPhase("transport"); };
-      root.querySelector("#tiw-btn-manual").onclick = () => { showPhase("setup"); renderInterests(root.querySelector("#tiw-interests")); renderDietary(root.querySelector("#tiw-dietary")); };
       root.querySelector("#tiw-btn-re-detect")?.addEventListener("click", () => detectLocation(root));
       root.querySelector("#tiw-btn-generate").onclick = () => generate(root);
       root.querySelector("#tiw-btn-generate-transport").onclick = () => generateTransport(root);

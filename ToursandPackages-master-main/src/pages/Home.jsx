@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import TravelWidget from '../components/TravelWidget'
 import { useRef } from 'react'
 
@@ -89,10 +90,7 @@ const Home = () => {
                   <span>Start Exploring</span>
                 </button>
                 
-                <button className="text-white text-base font-bold flex items-center gap-3 group transition-opacity hover:opacity-80">
-                  <span className="material-symbols-outlined text-3xl font-light">play_circle</span>
-                  <span>Watch Video</span>
-                </button>
+
               </motion.div>
             </div>
           </div>
@@ -251,191 +249,200 @@ const Home = () => {
         </motion.div>
       </div>
 
-      <section className="relative max-w-7xl mx-auto px-4 py-24 overflow-hidden">
-        {/* Background Image Layer */}
-        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
-          <img 
-            src="/featured_experiences_highres.png" 
-            className="w-full h-full object-cover" 
-            alt="Background"
-          />
-        </div>
-        {/* Softer Gradient Overlay to keep text readable but image visible */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-r from-white/40 via-transparent to-white/40 dark:from-slate-950/40 dark:via-transparent dark:to-slate-950/40 pointer-events-none"></div>
 
-
+      {/* Featured Experiences - Single Cohesive Section */}
+      <section className="relative w-full py-24 overflow-hidden">
         
-        <motion.div 
-          initial={{ y: 40, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: false, amount: 0.1 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 flex flex-col md:flex-row justify-between items-center mb-16 gap-10 pl-4 md:pl-12"
-        >
-          <div className="flex flex-col items-start text-left md:w-1/2">
-            <motion.h3
-              initial={{ x: -20, opacity: 0 }}
-              whileInView={{ x: 0, opacity: 1 }}
+        {/* TOP PART: HERO (GLOBE) */}
+        <div className="w-full relative flex items-center mb-32 min-h-screen">
+          {/* Background Image Layer - Full Resolution with minimal blur */}
+          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            <img 
+              src="/featured_bg_v3.png" 
+              className="w-full h-full object-cover scale-105 blur-[1px]" 
+              alt="Background"
+            />
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 md:px-12 w-full relative z-10">
+            <motion.div 
+              initial={{ y: 40, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: false, amount: 0.1 }}
-              className="text-5xl md:text-6xl font-black mb-4 font-serif italic tracking-tight"
+              transition={{ duration: 0.8 }}
+              className="flex flex-col md:flex-row justify-between items-center gap-10"
             >
-              <motion.span
-                animate={{ color: ["#064e3b", "#047857", "#064e3b"] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              >
-                Featured Experiences
-              </motion.span>
-            </motion.h3>
-            <p className="text-slate-600 dark:text-slate-400 text-lg md:text-xl md:mb-0">Hand-picked destinations for your next escape.</p>
-          </div>
-
-          <div className="relative w-full md:w-[500px] h-[350px] flex items-center justify-center shrink-0 hidden md:flex">
-            <style dangerouslySetInnerHTML={{
-              __html: `
-              @keyframes globe-flight-orbit {
-                0%   { transform: translate(-160px, 220px) rotate(36deg); opacity: 0; }
-                10%  { opacity: 1; }
-                50%  { transform: translate(0px, 0px) rotate(36deg); opacity: 1; }
-                90%  { opacity: 1; }
-                100% { transform: translate(160px, -220px) rotate(36deg); opacity: 0; }
-              }
-              @keyframes globe-float1 { 0%, 100% { transform: translateY(0px) scale(0.95); } 50% { transform: translateY(-8px) scale(0.95); } }
-              @keyframes globe-float2 { 0%, 100% { transform: translateY(0px) scale(0.95); } 50% { transform: translateY(-12px) scale(0.95); } }
-              @keyframes globe-float3 { 0%, 100% { transform: translateY(0px) scale(0.95); } 50% { transform: translateY(-6px) scale(0.95); } }
-            `}} />
-
-            <svg className="absolute top-0 left-0 w-full h-full z-[1] pointer-events-none" viewBox="0 0 500 350">
-              <path d="M 50 175 Q 250 50, 450 175" fill="none" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="2" strokeDasharray="6,6" style={{ filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.05))' }} />
-              <path d="M 120 280 Q 250 350, 380 280" fill="none" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="2" strokeDasharray="6,6" style={{ filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.05))' }} />
-            </svg>
-
-            <img src="https://em-content.zobj.net/source/apple/354/globe-showing-europe-africa_1f30d.png" alt="Globe" className="relative z-[2] w-[220px] h-[220px]" style={{ filter: 'drop-shadow(0 25px 45px rgba(0,0,0,0.15))' }} />
-
-            <div className="absolute top-1/2 left-1/2 w-0 h-0 pointer-events-none z-[15]">
-              <svg viewBox="0 0 24 24" className="absolute w-[26px] h-[26px] -mt-[13px] -ml-[13px]" style={{ animation: 'globe-flight-orbit 6s linear infinite', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.25))' }}>
-                <path fill="#0F172A" className="dark:fill-white" d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" />
-              </svg>
-            </div>
-
-            <div className="absolute top-[0%] left-[15%] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-1.5 flex flex-col shadow-[0_15px_35px_rgba(0,0,0,0.1)] w-[110px] z-10 border border-white/80 dark:border-slate-700/80" style={{ animation: 'globe-float1 4s infinite' }}>
-              <div className="absolute -bottom-2 -left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md z-[11] bg-indigo-500 text-white"><svg viewBox="0 0 24 24" className="w-[12px] h-[12px] fill-current"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg></div>
-              <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=150&h=100&fit=crop" className="w-full h-[75px] rounded-xl object-cover" />
-              <div className="px-1 pt-2 pb-1 text-left"><h4 className="m-0 text-[11.5px] font-bold text-slate-900 dark:text-white leading-tight">Burj Khalifa</h4><p className="m-0 mt-0.5 text-[9px] text-slate-500 dark:text-slate-400 font-medium">Dubai, UAE</p></div>
-            </div>
-
-            <div className="absolute top-[40%] -left-[2%] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-1.5 flex flex-col shadow-[0_15px_35px_rgba(0,0,0,0.1)] w-[110px] z-10 border border-white/80 dark:border-slate-700/80" style={{ animation: 'globe-float2 5s infinite 1s' }}>
-              <div className="absolute -bottom-2 -right-2 w-[22px] h-[22px] rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md z-[11] bg-emerald-500 text-white"><svg viewBox="0 0 24 24" className="w-[12px] h-[12px] fill-current"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg></div>
-              <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=150&h=100&fit=crop" className="w-full h-[75px] rounded-xl object-cover" />
-              <div className="px-1 pt-2 pb-1 text-left"><h4 className="m-0 text-[11.5px] font-bold text-slate-900 dark:text-white leading-tight">Taj Mahal</h4><p className="m-0 mt-0.5 text-[9px] text-slate-500 dark:text-slate-400 font-medium">Agra, India</p></div>
-            </div>
-
-            <div className="absolute top-[30%] right-[0%] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-1.5 flex flex-col shadow-[0_15px_35px_rgba(0,0,0,0.1)] w-[110px] z-10 border border-white/80 dark:border-slate-700/80" style={{ animation: 'globe-float3 4.5s infinite 0.5s' }}>
-              <div className="absolute -top-2 -left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md z-[11] bg-amber-500 text-white"><svg viewBox="0 0 24 24" className="w-[12px] h-[12px] fill-current"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg></div>
-              <img src="https://images.unsplash.com/photo-1516426122078-c23e76319801?w=150&h=100&fit=crop" className="w-full h-[75px] rounded-xl object-cover" />
-              <div className="px-1 pt-2 pb-1 text-left"><h4 className="m-0 text-[11.5px] font-bold text-slate-900 dark:text-white leading-tight">Safari Adventure</h4><p className="m-0 mt-0.5 text-[9px] text-slate-500 dark:text-slate-400 font-medium">Masai Mara, Kenya</p></div>
-            </div>
-
-            <div className="absolute bottom-[0%] left-[15%] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-1.5 flex flex-col shadow-[0_15px_35px_rgba(0,0,0,0.1)] w-[110px] z-10 border border-white/80 dark:border-slate-700/80" style={{ animation: 'globe-float1 5.5s infinite 1.5s' }}>
-              <div className="absolute -top-2 -right-2 w-[22px] h-[22px] rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md z-[11] bg-sky-500 text-white"><svg viewBox="0 0 24 24" className="w-[12px] h-[12px] fill-current"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg></div>
-              <img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=150&h=100&fit=crop" className="w-full h-[75px] rounded-xl object-cover" />
-              <div className="px-1 pt-2 pb-1 text-left"><h4 className="m-0 text-[11.5px] font-bold text-slate-900 dark:text-white leading-tight">Maldives</h4><p className="m-0 mt-0.5 text-[9px] text-slate-500 dark:text-slate-400 font-medium">Maldives</p></div>
-            </div>
-
-            <div className="absolute -bottom-[5%] right-[20%] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-1.5 flex flex-col shadow-[0_15px_35px_rgba(0,0,0,0.1)] w-[110px] z-10 border border-white/80 dark:border-slate-700/80" style={{ animation: 'globe-float3 4.8s infinite 0.8s' }}>
-              <div className="absolute -bottom-2 -left-2 w-[22px] h-[22px] rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md z-[11] bg-pink-500 text-white"><svg viewBox="0 0 24 24" className="w-[12px] h-[12px] fill-current"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" /></svg></div>
-              <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=150&h=100&fit=crop" className="w-full h-[75px] rounded-xl object-cover" />
-              <div className="px-1 pt-2 pb-1 text-left"><h4 className="m-0 text-[11.5px] font-bold text-slate-900 dark:text-white leading-tight">Eiffel Tower</h4><p className="m-0 mt-0.5 text-[9px] text-slate-500 dark:text-slate-400 font-medium">Paris, France</p></div>
-            </div>
-          </div>
-        </motion.div>
-
-        <div className="flex justify-center md:justify-end gap-4 mb-8">
-          <button className="w-12 h-12 rounded-full border border-slate-200 dark:border-slate-700 hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center">
-            <span className="material-symbols-outlined">chevron_left</span>
-          </button>
-          <button className="w-12 h-12 rounded-full border border-slate-200 dark:border-slate-700 hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center">
-            <span className="material-symbols-outlined">chevron_right</span>
-          </button>
-        </div>
-
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: false, amount: 0.1, margin: "-100px" }}
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.2
-              }
-            }
-          }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-10"
-        >
-          {[
-            {
-              title: "Swiss Alps Discovery",
-              price: "₹2,499",
-              days: "8",
-              rating: "4.5",
-              reviews: "120",
-              image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCl4tWjPhc7rmp0uOJ7UgRiK74yeVLJokKKASi-zjJkL26sPkDskRGVWMYn-KqXsbMsIHqtv7d5Xwjdef9eF3qnYI5PDBiHg8KeN-LJQ6-p4ul8ZPxzZOubRJHqUPe9o1IrAUUFAFU5LknSsfoTVBiRB-JFRdtcJgduz2fIFDJbRVlQX5G25-v2xlmslPu8_raK-sQpzPah7MLvxRt0829pIC7LizfTa7YQKCDWW1ZZvtwYDydPRgi_5nMLUAIBhm1UJcJi_yt414s"
-            },
-            {
-              title: "Bali Wellness Escape",
-              price: "₹1,850",
-              days: "12",
-              rating: "5.0",
-              reviews: "85",
-              image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBpxz9Lc7JszjSsAJWYtNmWOH9TTcj0Cl1qx88wWR4EvOR4ly7s6qDlSQ3Kg93AgMPTyjYtx94gzpRC7jIxxfyXzwjEksOyIAYPHCk1q1LkLJ0iEyKHok8rzVf69fo7mSpsaruXSMjUtHe8rwfiTBuxKIpFFh3IRs6AjhPxgXD-S2f7EzYVb85jmB_yzweicqhXRZJoURyzf4fMqjZlykSSM6LDcjFdzzOfNvX6zMKT3T7M0ryeiXaoB-xCqurcIZlCEdcitB9CByE"
-            },
-            {
-              title: "Kenyan Safari Expedition",
-              price: "₹3,200",
-              days: "10",
-              rating: "5.0",
-              reviews: "154",
-              image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBrCnpr7VJC1qM5mk21z4d8tMd_x5TGuqH93w_aturOToIIIeHM1Ys63TMEIxpN38IC3W9HyXCAZT8zHXZtuRlTHaRFQ6H8gZUOIx-sp0mYxEk9sYrEG6y-PYav0Mb9gNPLoGj-FeP_DrBKCURArn8x7bF3xSWbvwXpx8o_GGk_9iuHdlSiuY5QbdvFzZkUvqZIRKxkGrRq29hkrrtVRcVPprFPcR-D5VdevEX7TIHVyazU6HAYKm8zu7n8UBPnutExPXlJxgxTf9c"
-            }
-          ].map((item, idx) => (
-            <motion.div
-              key={idx}
-              variants={{
-                hidden: { y: 50, opacity: 0 },
-                visible: { y: 0, opacity: 1, transition: { duration: 0.6 } }
-              }}
-              whileHover={{ y: -10 }}
-              className="group bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 dark:border-slate-800"
-            >
-              <div className="relative h-72 overflow-hidden">
-                <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" src={item.image} alt={item.title} />
-                <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-2 rounded-full text-xs font-black text-primary shadow-lg">{item.days} Days</div>
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span className="text-white font-bold text-sm tracking-wide">VIEW EXPEDITION</span>
-                </div>
+              <div className="flex flex-col items-start text-left md:w-1/2">
+                <motion.h3
+                  initial={{ x: -20, opacity: 0 }}
+                  whileInView={{ x: 0, opacity: 1 }}
+                  viewport={{ once: false, amount: 0.1 }}
+                  className="text-5xl md:text-7xl font-black mb-6 font-serif italic tracking-tight"
+                >
+                  <motion.span
+                    animate={{ color: ["#ffffff", "#f1f5f9", "#ffffff"] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    Featured Experiences
+                  </motion.span>
+                </motion.h3>
+                <p className="text-white text-xl md:text-2xl font-normal drop-shadow-lg">Hand-picked destinations for your next escape.</p>
               </div>
-              <div className="p-8">
-                <h4 className="text-2xl font-black mb-3 group-hover:text-primary transition-colors">{item.title}</h4>
-                <div className="flex items-center gap-1 text-yellow-500 mb-6">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className={`material-symbols-outlined text-sm ${i < Math.floor(item.rating) ? 'fill-1' : ''}`}>star</span>
-                  ))}
-                  <span className="text-xs text-slate-500 ml-2 font-bold uppercase tracking-widest">({item.reviews} reviews)</span>
+
+              <div className="relative left-[140px] w-full md:w-[600px] h-[450px] flex items-center justify-center shrink-0 hidden md:flex opacity-85">
+                <style dangerouslySetInnerHTML={{
+                  __html: `
+                  @keyframes globe-flight-orbit {
+                    0%   { transform: translate(-160px, 220px) rotate(36deg); opacity: 0; }
+                    10%  { opacity: 1; }
+                    50%  { transform: translate(0px, 0px) rotate(36deg); opacity: 1; }
+                    90%  { opacity: 1; }
+                    100% { transform: translate(160px, -220px) rotate(36deg); opacity: 0; }
+                  }
+                  @keyframes globe-float1 { 0%, 100% { transform: translateY(0px) scale(0.95); } 50% { transform: translateY(-8px) scale(0.95); } }
+                  @keyframes globe-float2 { 0%, 100% { transform: translateY(0px) scale(0.95); } 50% { transform: translateY(-12px) scale(0.95); } }
+                  @keyframes globe-float3 { 0%, 100% { transform: translateY(0px) scale(0.95); } 50% { transform: translateY(-6px) scale(0.95); } }
+                `}} />
+
+                <svg className="absolute top-0 left-0 w-full h-full z-[1] pointer-events-none" viewBox="0 0 500 350">
+                  <path d="M 50 175 Q 250 50, 450 175" fill="none" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="2" strokeDasharray="6,6" style={{ filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.05))' }} />
+                  <path d="M 120 280 Q 250 350, 380 280" fill="none" stroke="currentColor" className="text-slate-300 dark:text-slate-700" strokeWidth="2" strokeDasharray="6,6" style={{ filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.05))' }} />
+                </svg>
+
+                <img src="https://em-content.zobj.net/source/apple/354/globe-showing-europe-africa_1f30d.png" alt="Globe" className="relative z-[2] w-[220px] h-[220px]" style={{ filter: 'drop-shadow(0 25px 45px rgba(0,0,0,0.15))' }} />
+
+                <div className="absolute top-1/2 left-1/2 w-0 h-0 pointer-events-none z-[15]">
+                  <svg viewBox="0 0 24 24" className="absolute w-[26px] h-[26px] -mt-[13px] -ml-[13px]" style={{ animation: 'globe-flight-orbit 6s linear infinite', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.25))' }}>
+                    <path fill="#0F172A" className="dark:fill-white" d="M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z" />
+                  </svg>
                 </div>
-                <div className="flex justify-between items-center border-t border-slate-100 dark:border-slate-800 pt-6">
-                  <div className="flex flex-col">
-                    <span className="text-xs text-slate-400 font-bold uppercase tracking-tighter">Starting at</span>
-                    <span className="text-3xl font-black text-primary leading-none">{item.price}</span>
-                  </div>
-                  <Link to="/details" className="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-primary/20">
-                    <span className="material-symbols-outlined">arrow_forward</span>
-                  </Link>
+
+                <div className="absolute top-[0%] left-[10%] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-1.5 flex flex-col shadow-[0_15px_35px_rgba(0,0,0,0.1)] w-[120px] z-10 border border-white/80 dark:border-slate-700/80" style={{ animation: 'globe-float1 4s infinite' }}>
+                  <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=150&h=100&fit=crop" className="w-full h-[85px] rounded-xl object-cover" />
+                  <div className="px-1 pt-2 pb-1 text-left"><h4 className="m-0 text-[12px] font-bold text-slate-900 dark:text-white leading-tight">Burj Khalifa</h4><p className="m-0 mt-0.5 text-[10px] text-slate-500 dark:text-slate-400 font-medium">Dubai, UAE</p></div>
+                </div>
+
+                <div className="absolute top-[40%] -left-[10%] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-1.5 flex flex-col shadow-[0_15px_35px_rgba(0,0,0,0.1)] w-[120px] z-10 border border-white/80 dark:border-slate-700/80" style={{ animation: 'globe-float2 5s infinite 1s' }}>
+                  <img src="https://images.unsplash.com/photo-1548013146-72479768bada?w=150&h=100&fit=crop" className="w-full h-[85px] rounded-xl object-cover" />
+                  <div className="px-1 pt-2 pb-1 text-left"><h4 className="m-0 text-[12px] font-bold text-slate-900 dark:text-white leading-tight">Taj Mahal</h4><p className="m-0 mt-0.5 text-[10px] text-slate-500 dark:text-slate-400 font-medium">Agra, India</p></div>
+                </div>
+
+                <div className="absolute top-[30%] right-[0%] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-1.5 flex flex-col shadow-[0_15px_35px_rgba(0,0,0,0.1)] w-[120px] z-10 border border-white/80 dark:border-slate-700/80" style={{ animation: 'globe-float3 4.5s infinite 0.5s' }}>
+                  <img src="https://images.unsplash.com/photo-1516426122078-c23e76319801?w=150&h=100&fit=crop" className="w-full h-[85px] rounded-xl object-cover" />
+                  <div className="px-1 pt-2 pb-1 text-left"><h4 className="m-0 text-[12px] font-bold text-slate-900 dark:text-white leading-tight">Safari Adventure</h4><p className="m-0 mt-0.5 text-[10px] text-slate-500 dark:text-slate-400 font-medium">Kenya</p></div>
+                </div>
+
+                <div className="absolute bottom-[0%] left-[10%] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-1.5 flex flex-col shadow-[0_15px_35px_rgba(0,0,0,0.1)] w-[120px] z-10 border border-white/80 dark:border-slate-700/80" style={{ animation: 'globe-float1 5.5s infinite 1.5s' }}>
+                  <img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=150&h=100&fit=crop" className="w-full h-[85px] rounded-xl object-cover" />
+                  <div className="px-1 pt-2 pb-1 text-left"><h4 className="m-0 text-[12px] font-bold text-slate-900 dark:text-white leading-tight">Maldives</h4><p className="m-0 mt-0.5 text-[10px] text-slate-500 dark:text-slate-400 font-medium">Maldives</p></div>
+                </div>
+
+                <div className="absolute -bottom-[5%] right-[20%] bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl p-1.5 flex flex-col shadow-[0_15px_35px_rgba(0,0,0,0.1)] w-[120px] z-10 border border-white/80 dark:border-slate-700/80" style={{ animation: 'globe-float3 4.8s infinite 0.8s' }}>
+                  <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=150&h=100&fit=crop" className="w-full h-[85px] rounded-xl object-cover" />
+                  <div className="px-1 pt-2 pb-1 text-left"><h4 className="m-0 text-[12px] font-bold text-slate-900 dark:text-white leading-tight">Eiffel Tower</h4><p className="m-0 mt-0.5 text-[10px] text-slate-500 dark:text-slate-400 font-medium">Paris, France</p></div>
                 </div>
               </div>
             </motion.div>
-          ))}
-        </motion.div>
+          </div>
+        </div>
+
+        {/* BOTTOM PART: EXPERIENCE CARDS */}
+        <div className="w-full relative flex flex-col items-center">
+          <div className="max-w-7xl mx-auto px-6 py-20 w-full relative z-10 flex flex-col items-center">
+            <motion.h4
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: false }}
+              className="text-4xl md:text-6xl font-black text-center mb-16 dark:text-white"
+            >
+              Find Your Next Adventure
+            </motion.h4>
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: false, amount: 0.1 }}
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.2
+                  }
+                }
+              }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-10"
+            >
+              <div className="md:col-span-3 flex justify-end gap-4 -mb-4 z-20">
+                <button className="w-12 h-12 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 bg-white dark:bg-slate-900 shadow-sm">
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button className="w-12 h-12 rounded-full border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 bg-white dark:bg-slate-900 shadow-sm">
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </div>
+
+              {[
+                {
+                  title: "Swiss Alps Discovery",
+                  price: "₹2,499",
+                  days: "8",
+                  rating: "4.5",
+                  reviews: "120",
+                  image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCl4tWjPhc7rmp0uOJ7UgRiK74yeVLJokKKASi-zjJkL26sPkDskRGVWMYn-KqXsbMsIHqtv7d5Xwjdef9eF3qnYI5PDBiHg8KeN-LJQ6-p4ul8ZPxzZOubRJHqUPe9o1IrAUUFAFU5LknSsfoTVBiRB-JFRdtcJgduz2fIFDJbRVlQX5G25-v2xlmslPu8_raK-sQpzPah7MLvxRt0829pIC7LizfTa7YQKCDWW1ZZvtwYDydPRgi_5nMLUAIBhm1UJcJi_yt414s"
+                },
+                {
+                  title: "Bali Wellness Escape",
+                  price: "₹1,850",
+                  days: "12",
+                  rating: "5.0",
+                  reviews: "85",
+                  image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBpxz9Lc7JszjSsAJWYtNmWOH9TTcj0Cl1qx88wWR4EvOR4ly7s6qDlSQ3Kg93AgMPTyjYtx94gzpRC7jIxxfyXzwjEksOyIAYPHCk1q1LkLJ0iEyKHok8rzVf69fo7mSpsaruXSMjUtHe8rwfiTBuxKIpFFh3IRs6AjhPxgXD-S2f7EzYVb85jmB_yzweicqhXRZJoURyzf4fMqjZlykSSM6LDcjFdzzOfNvX6zMKT3T7M0ryeiXaoB-xCqurcIZlCEdcitB9CByE"
+                },
+                {
+                  title: "Kenyan Safari Expedition",
+                  price: "₹3,200",
+                  days: "10",
+                  rating: "5.0",
+                  reviews: "154",
+                  image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBrCnpr7VJC1qM5mk21z4d8tMd_x5TGuqH93w_aturOToIIIeHM1Ys63TMEIxpN38IC3W9HyXCAZT8zHXZtuRlTHaRFQ6H8gZUOIx-sp0mYxEk9sYrEG6y-PYav0Mb9gNPLoGj-FeP_DrBKCURArn8x7bF3xSWbvwXpx8o_GGk_9iuHdlSiuY5QbdvFzZkUvqZIRKxkGrRq29hkrrtVRcVPprFPcR-D5VdevEX7TIHVyazU6HAYKm8zu7n8UBPnutExPXlJxgxTf9c"
+                }
+              ].map((item, idx) => (
+                <motion.div
+                  key={idx}
+                  variants={{
+                    hidden: { y: 50, opacity: 0 },
+                    visible: { y: 0, opacity: 1, transition: { duration: 0.6 } }
+                  }}
+                  whileHover={{ y: -10 }}
+                  className="group bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] transition-all duration-500 border border-slate-100 dark:border-slate-800"
+                >
+                  <div className="relative h-80 overflow-hidden">
+                    <img className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" src={item.image} alt={item.title} />
+                    <div className="absolute top-5 right-5 bg-white/95 backdrop-blur px-4 py-2 rounded-full text-xs font-black text-primary shadow-lg">{item.days} Days</div>
+                  </div>
+                  <div className="p-8">
+                    <h4 className="text-2xl font-black mb-3 group-hover:text-primary transition-colors">{item.title}</h4>
+                    <div className="flex items-center gap-1 text-yellow-500 mb-6">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className={`material-symbols-outlined text-sm ${i < Math.floor(item.rating) ? 'fill-1' : ''}`}>star</span>
+                      ))}
+                      <span className="text-xs text-slate-500 ml-2 font-bold uppercase tracking-widest">({item.reviews} reviews)</span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-slate-100 dark:border-slate-800 pt-6">
+                      <div className="flex flex-col">
+                        <span className="text-xs text-slate-400 font-bold uppercase tracking-tighter">Starting at</span>
+                        <span className="text-3xl font-black text-primary leading-none">{item.price}</span>
+                      </div>
+                      <Link to="/details" className="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-primary/20">
+                        <span className="material-symbols-outlined">arrow_forward</span>
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
       </section>
 
       <TravelWidget />
