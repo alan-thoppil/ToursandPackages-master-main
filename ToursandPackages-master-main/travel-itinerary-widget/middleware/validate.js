@@ -7,7 +7,7 @@
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 const ALLOWED_INTERESTS = new Set([
-  "food", "culture", "nature", "shopping",
+  "food", "culture", "nature", "shopping", "shop", "photo", "peace",
   "beaches", "adventure", "heritage", "nightlife",
 ]);
 
@@ -58,12 +58,25 @@ export function validateItinerary(req, res, next) {
     TIME_RE.test(body.arrivalTime) &&
     TIME_RE.test(body.departureTime)
   ) {
-    const gap = toMins(body.departureTime) - toMins(body.arrivalTime);
+    let arrTotalMins = toMins(body.arrivalTime);
+    let depTotalMins = toMins(body.departureTime);
+
+    if (body.arrivalDate && body.departureDate) {
+      const arrD = new Date(body.arrivalDate);
+      const depD = new Date(body.departureDate);
+      const dayDiff = Math.round((depD - arrD) / (1000 * 60 * 60 * 24));
+      if (dayDiff > 0) {
+        depTotalMins += dayDiff * 24 * 60;
+      }
+    }
+
+    const gap = depTotalMins - arrTotalMins;
     if (gap < 90) {
       errors.push("You need at least 90 minutes between arrival and departure to plan a meaningful day");
     }
-    if (gap > 16 * 60) {
-      errors.push("Time window cannot exceed 16 hours");
+    // We remove the strict 16 hours limit to support multi-day itineraries if dates differ.
+    if (gap > 16 * 60 && !(body.arrivalDate && body.departureDate && body.arrivalDate !== body.departureDate)) {
+      errors.push("Single-day time window cannot exceed 16 hours");
     }
   }
 

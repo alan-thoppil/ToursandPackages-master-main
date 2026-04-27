@@ -839,6 +839,8 @@
         const group = L.featureGroup(markers);
         map.fitBounds(group.getBounds().pad(0.2));
 
+        setTimeout(() => map.invalidateSize(), 500);
+
         // Draw line
         L.polyline([[p1.lat, p1.lon], [p2.lat, p2.lon]], {color: '#6366F1', weight: 4, dashArray: '10, 10'}).addTo(map);
       }
@@ -921,9 +923,30 @@
       else tl.parentElement.prepend(adviceDiv);
     }
 
-    renderMap(root, data);
     showPhase("itinerary");
-    setTimeout(() => mapInstance && mapInstance.resize(), 500);
+    renderMap(root, data);
+    
+    // CRITICAL FIX: Leaflet requires invalidateSize() after the container becomes visible.
+    // We call it multiple times to ensure it catches any layout transitions.
+    setTimeout(() => {
+      if (mapInstance) {
+        mapInstance.invalidateSize();
+        // Re-center if possible
+        const items = (data.items || []).filter(i => {
+          const lat = parseFloat(i.lat); const lon = parseFloat(i.lon);
+          return !isNaN(lat) && !isNaN(lon) && Math.abs(lat) > 0.1;
+        });
+        if (items.length) {
+           const group = new L.featureGroup(items.map(i => L.marker([i.lat, i.lon])));
+           mapInstance.fitBounds(group.getBounds().pad(0.1));
+        }
+      }
+    }, 100);
+
+    setTimeout(() => {
+      if (mapInstance) mapInstance.invalidateSize();
+    }, 600);
+
     root.scrollIntoView({ behavior: "smooth" });
   }
 
@@ -934,86 +957,10 @@
       const lon = parseFloat(i.lon);
       return !isNaN(lat) && !isNaN(lon) && Math.abs(lat) > 0.1 && Math.abs(lon) > 0.1;
     });
-    const token = script.dataset.mapboxToken || "";
     const mapEl = root.querySelector("#tiw-map");
     if (!mapEl || !items.length) return;
-    if (mapInstance) { if(typeof mapInstance.remove === 'function') mapInstance.remove(); mapInstance = null; }
     
-    if (data._meta?.mapboxOverLimit) return renderLeaflet(mapEl, items);
-
-    if (!window.mapboxgl) {
-      const l = document.createElement("link"); l.rel="stylesheet"; l.href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css"; document.head.appendChild(l);
-      const s = document.createElement("script"); s.src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"; 
-      s.onload = () => renderMap(root, data); document.head.appendChild(s);
-      return;
-    }
-
-    // PROACTIVE TOKEN CHECK: Avoid 403 console spam by checking token before initializing the map engine
-    if (token) {
-      try {
-        const check = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/health.json?access_token=${token}&limit=1`).catch(() => ({ok: false}));
-        if (!check.ok) {
-          console.warn("Mapbox token appears invalid (403), falling back to Leaflet immediately.");
-          return renderLeaflet(mapEl, items);
-        }
-      } catch(e) {}
-    }
-
-    mapboxgl.accessToken = token;
-    try {
-      mapInstance = new mapboxgl.Map({ 
-        container: mapEl, 
-        style: "mapbox://styles/mapbox/streets-v11", 
-        center: [parseFloat(items[0].lon), parseFloat(items[0].lat)], 
-        zoom: 12, 
-        attributionControl: false, 
-        preserveDrawingBuffer: true 
-      });
-
-      mapInstance.on("error", (e) => {
-        console.warn("Mapbox GL error, falling back to Leaflet:", e);
-        if (mapInstance) { mapInstance.remove(); mapInstance = null; }
-        renderLeaflet(mapEl, items);
-      });
-      
-      mapInstance.on("load", async () => {
-        const b = new mapboxgl.LngLatBounds();
-        items.forEach(i => {
-          const cat = getCat(i.category);
-          const el = document.createElement('div');
-          el.className = 'tiw-marker';
-          el.innerHTML = `<div style="background:${cat.color};width:24px;height:24px;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.15)">${cat.emoji}</div>`;
-          const popup = new mapboxgl.Popup({ offset: 15, closeButton: false }).setHTML(`<div style="font-weight:700;font-size:12px;color:#0F172A;white-space:nowrap">${i.title}</div>`);
-          new mapboxgl.Marker(el).setLngLat([parseFloat(i.lon), parseFloat(i.lat)]).setPopup(popup).addTo(mapInstance);
-          b.extend([parseFloat(i.lon), parseFloat(i.lat)]);
-        });
-
-        if (items.length > 1) {
-          // Fix route logic: Draw route in exact order provided (Arrival -> Suggested -> Departure)
-          const ordered = [...items];
-          
-          const coords = ordered.map(i => `${i.lon},${i.lat}`);
-          const modeMap = { CAR: "driving", BIKE: "cycling", WALK: "walking", BUS: "driving" };
-          const profile = modeMap[state.transportMode] || "driving";
-          const routeColor = state.transportMode === "WALK" ? "#6366F1" : (state.transportMode === "BIKE" ? "#F59E0B" : "#14B8A6");
-          
-          try {
-            const res = await fetch(`https://api.mapbox.com/directions/v5/mapbox/${profile}/${coords.join(';')}?geometries=geojson&access_token=${token}`);
-            if (!res.ok) throw new Error(`Directions failed: ${res.status}`);
-            const json = await res.json();
-            if (json.routes?.[0]) {
-              mapInstance.addSource('route', { type: 'geojson', data: { type: 'Feature', geometry: json.routes[0].geometry }});
-              mapInstance.addLayer({ id: 'route', type: 'line', source: 'route', paint: { 'line-color': routeColor, 'line-width': 4, 'line-opacity': 0.8, 'line-dasharray': state.transportMode === "WALK" ? [2, 1] : [1] }});
-            }
-          } catch(err){ console.warn("Mapbox directions fetch failed", err); }
-        }
-        mapInstance.fitBounds(b, {padding: 60, maxZoom: 15});
-        setTimeout(() => mapInstance && mapInstance.resize(), 500);
-      });
-    } catch (e) {
-      console.error("Mapbox init failed, falling back to Leaflet", e);
-      renderLeaflet(mapEl, items);
-    }
+    return renderLeaflet(mapEl, items);
   }
 
   async function renderLeaflet(el, items) {

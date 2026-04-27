@@ -12,32 +12,6 @@ router.get("/", async (req, res) => {
   const q = (req.query.q || "").trim();
   if (!q) return res.status(400).json({ error: "Missing query param: q" });
 
-  const token = process.env.MAPBOX_ACCESS_TOKEN;
-  if (token) {
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${token}&limit=5&types=place,locality,address,poi`;
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.features && data.features.length) {
-        const results = data.features.map(feat => {
-          const [lon, lat] = feat.center;
-          return {
-            found: true,
-            lat,
-            lon,
-            name: feat.text,
-            display_name: feat.place_name,
-            secondary: feat.context?.map(c => c.text).join(", ") || ""
-          };
-        });
-        return res.json({ results });
-      }
-    } catch (err) {
-      console.error("Mapbox forward geocode error", err);
-    }
-  }
-
-  // Fallback to Nominatim
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5`;
   try {
     const response = await fetch(url, { headers: { "User-Agent": "TravelItineraryWidget/1.0" } });
@@ -62,24 +36,6 @@ router.get("/reverse", async (req, res) => {
   const { lat, lon } = req.query;
   if (!lat || !lon) return res.status(400).json({ error: "lat and lon required" });
 
-  const token = process.env.MAPBOX_ACCESS_TOKEN;
-  if (token) {
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lon},${lat}.json?access_token=${token}&limit=1&types=place,locality`;
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.features && data.features.length) {
-        const feat = data.features[0];
-        const city = feat.text;
-        const state = feat.context?.find(c => c.id.startsWith('region'))?.text || "";
-        return res.json({ city, display_name: feat.place_name, address: { state } });
-      }
-    } catch (err) {
-      console.error("Mapbox reverse geocode error", err);
-    }
-  }
-
-  // Fallback to Nominatim
   const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
   try {
     const response = await fetch(url, { headers: { "User-Agent": "TravelItineraryWidget/1.0" } });

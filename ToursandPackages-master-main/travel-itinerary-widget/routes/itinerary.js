@@ -1,8 +1,7 @@
 // ═══════════════════════════════════════════════════════════
 //  Route: POST /api/itinerary
-//  Orchestrates: Geocode → Overpass POIs → OSRM → Groq AI
-//  FREE: Groq free tier — 14,400 req/day, no credit card
-//  Model: llama-3.3-70b-versatile
+//  Orchestrates: Geocode → Overpass POIs → OSRM → AI
+//  FREE: Groq/NVIDIA free tiers
 // ═══════════════════════════════════════════════════════════
 
 import { Router } from "express";
@@ -12,105 +11,91 @@ import { createLogger } from "../lib/logger.js";
 const router = Router();
 const log    = createLogger("itinerary");
 
-// ── Groq API call (pure fetch, zero SDK needed) ──────────────
-
+// ── AI call (pure fetch, zero SDK needed) ──────────────
 const GROQ_MODEL   = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const NVIDIA_MODEL = process.env.NVIDIA_MODEL || "meta/llama-3.1-8b-instruct";
 
-async function callGroq(prompt) {
-  const key = process.env.GROQ_API_KEY;
-  if (!key) {
-    log.error("GROQ_API_KEY is missing from process.env");
-    throw new Error("GROQ_API_KEY is not set in .env — get one free at console.groq.com");
+async function callAI(prompt) {
+  const nvidiaKey = process.env.NVIDIA_API_KEY;
+  const groqKey   = process.env.GROQ_API_KEY;
+  
+  let url, key, model;
+
+  if (nvidiaKey) {
+    url = "https://integrate.api.nvidia.com/v1/chat/completions";
+    key = nvidiaKey;
+    model = NVIDIA_MODEL;
+    log.debug("Using NVIDIA NIM API", { model });
+  } else if (groqKey) {
+    url = "https://api.groq.com/openai/v1/chat/completions";
+    key = groqKey;
+    model = GROQ_MODEL;
+    log.debug("Using Groq API", { model });
+  } else {
+    log.error("AI API Key is missing");
+    throw new Error("Neither NVIDIA_API_KEY nor GROQ_API_KEY is set in .env");
   }
 
-  log.debug("Sending request to Groq", { model: GROQ_MODEL, promptLength: prompt.length });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120000);
 
-  const res = await fetch(GROQ_API_URL, {
-    method:  "POST",
-    headers: {
-      "Content-Type":  "application/json",
-      "Authorization": `Bearer ${key}`,
-    },
-    body: JSON.stringify({
-      model:       GROQ_MODEL,
-      temperature: 0.7,
-      max_tokens:  3500,
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role:    "system",
-          content: "You are an expert local travel guide. You specialization is in LUXURY and PREMIUM travel. You always include at least one resort or hotel recommendation in every plan. You correctly identify and highlight VEG vs NON-VEG food options. Always respond with a single valid JSON object — no markdown, no explanation text.",
-        },
-        {
-          role:    "user",
-          content: prompt,
-        },
-      ],
-    }),
-  });
+  try {
+    const res = await fetch(url, {
+      method:  "POST",
+      headers: {
+        "Content-Type":  "application/json",
+        "Authorization": `Bearer ${key}`,
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model:       model,
+        temperature: 0.7,
+        max_tokens:  3500,
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role:    "system",
+            content: "You are an expert local travel guide. You specialization is in LUXURY and PREMIUM travel. You always include at least one resort or hotel recommendation in every plan. You correctly identify and highlight VEG vs NON-VEG food options. Always respond with a single valid JSON object — no markdown, no explanation text.",
+          },
+          {
+            role:    "user",
+            content: prompt,
+          },
+        ],
+      }),
+    });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    log.error("Groq API error", { status: res.status, error: err.error?.message || res.statusText });
-    
-    if (res.status === 429) {
-      throw new Error("Free tier rate limit hit — please wait a minute and try again.");
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      log.error("AI API error", { status: res.status, error: err.error?.message || res.statusText });
+      
+      if (res.status === 429) {
+        throw new Error("AI provider rate limit hit — please wait a minute or upgrade your plan.");
+      }
+      throw new Error(`AI API error ${res.status}: ${err?.error?.message || res.statusText}`);
     }
-    throw new Error(`Groq API error ${res.status}: ${err?.error?.message || res.statusText}`);
-  }
 
-  const data = await res.json();
-  const text = data?.choices?.[0]?.message?.content;
-  if (!text) {
-    log.error("Empty response from Groq", { data });
-    throw new Error("Empty response from Groq");
+    const data = await res.json();
+    const text = data?.choices?.[0]?.message?.content;
+    if (!text) {
+      log.error("Empty response from AI", { data });
+      throw new Error("Empty response from AI provider");
+    }
+    return text;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error("AI generation timed out (120s). Please try again.");
+    }
+    throw err;
   }
-  return text;
 }
 
 // ── Raw API helpers (passed into cache wrappers) ─────────────
 
-async function _geocode(query, proximity = null, bbox = null) {
-  const token = process.env.MAPBOX_ACCESS_TOKEN;
-  if (!token || usageTracker.isOverLimit) return _geocodeFallback(query, bbox);
-
-  try {
-    let url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&limit=1&types=poi,landmark,address`;
-    if (proximity) url += `&proximity=${proximity.lon},${proximity.lat}`;
-    if (bbox) url += `&bbox=${bbox.join(',')}`;
-    
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Mapbox geocoding failed");
-    usageTracker.increment();
-    
-    const data = await res.json();
-    if (!data.features || !data.features.length) {
-      // Try broad search if POI fails
-      let broadUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&limit=1`;
-      if (proximity) broadUrl += `&proximity=${proximity.lon},${proximity.lat}`;
-      if (bbox) broadUrl += `&bbox=${bbox.join(',')}`;
-      
-      const broadRes = await fetch(broadUrl);
-      const broadData = await broadRes.json();
-      if (!broadData.features || !broadData.features.length) return null;
-      
-      const feat = broadData.features[0];
-      if (feat.relevance < 0.4) return null;
-      const [lon, lat] = feat.center;
-      return { lat, lon };
-    }
-
-    const feat = data.features[0];
-    const [lon, lat] = feat.center;
-    return { lat, lon };
-  } catch (err) {
-    log.error("Mapbox geocode error, falling back", err);
-    return _geocodeFallback(query, bbox);
-  }
-}
-
-async function _geocodeFallback(query, bbox = null) {
+async function _geocode(query, bbox = null) {
   let url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
   if (bbox) {
     // bbox is [minX, minY, maxX, maxY]
@@ -121,7 +106,7 @@ async function _geocodeFallback(query, bbox = null) {
   const data = await res.json();
   if (!data.length) {
     // If bounded fails, try unbounded
-    if (bbox) return _geocodeFallback(query, null);
+    if (bbox) return _geocode(query, null);
     return null;
   }
   return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
@@ -167,26 +152,6 @@ async function _fetchPOIs(lat, lon) {
 }
 
 async function _getTravelMinutes(lat1, lon1, lat2, lon2) {
-  const token = process.env.MAPBOX_ACCESS_TOKEN;
-  if (!token || usageTracker.isOverLimit) return _getTravelMinutesFallback(lat1, lon1, lat2, lon2);
-
-  try {
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${lon1},${lat1};${lon2},${lat2}?access_token=${token}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Mapbox directions failed");
-    
-    // Successful call, increment tracker
-    usageTracker.increment();
-    
-    const data = await res.json();
-    return Math.ceil((data.routes?.[0]?.duration || 1800) / 60);
-  } catch (err) {
-    log.error("Mapbox directions error, falling back", err);
-    return _getTravelMinutesFallback(lat1, lon1, lat2, lon2);
-  }
-}
-
-async function _getTravelMinutesFallback(lat1, lon1, lat2, lon2) {
   const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false`;
   const res = await fetch(url);
   if (!res.ok) return 30;
@@ -291,7 +256,8 @@ RULES:
 12. GEOGRAPHICAL CONSTRAINTS: If ${dest} is landlocked but sea travel is implied, or if a specific hub is missing, automatically identify and suggest the NEAREST valid transit hub (e.g., nearest seaport or airport) and adjust the route accordingly.
 13. Ensure the departure_alert says: "Leave by ${leaveBy}. Allow ${travelMins} min to reach ${depPt} by ${depTime}."
 14. PROVIDE EXTRA SUGGESTIONS for outfit, etiquette, safety, photography, and alternatives in the final object.
-15. COMPREHENSIVENESS: Your itinerary MUST contain a minimum of 10 distinct stops/items (including the arrival and departure points) to provide a rich variety of recommendations for the user.
+15. COMPREHENSIVENESS: Your itinerary MUST contain a minimum of 10 distinct stops/items. This is a STRICT requirement for a premium experience.
+16. The items array MUST BEGIN with the arrival point and MUST END with the departure point. Do not skip either.
 
 Return this exact JSON structure:
 {
@@ -351,17 +317,13 @@ router.post("/", async (req, res) => {
     // Step 1: Geocode destination (cached 6h)
     let cityBbox = null;
     cityCenterCoords = await cachedGeocode(dest, async (q) => {
-      const token = process.env.MAPBOX_ACCESS_TOKEN;
-      if (!token || usageTracker.isOverLimit) return _geocodeFallback(q);
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?access_token=${token}&limit=1&types=place,locality`;
-      const res = await fetch(url);
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`;
+      const res = await fetch(url, { headers: { "User-Agent": "TravelItineraryWidget/1.0" } });
       const data = await res.json();
-      if (!data.features || !data.features.length) return _geocodeFallback(q);
-      usageTracker.increment();
-      const feat = data.features[0];
-      if (feat.bbox) cityBbox = feat.bbox;
-      const [lon, lat] = feat.center;
-      return { lat, lon, bbox: feat.bbox };
+      if (!data.length) return null;
+      const feat = data[0];
+      if (feat.boundingbox) cityBbox = [feat.boundingbox[2], feat.boundingbox[0], feat.boundingbox[3], feat.boundingbox[1]]; // lon min, lat min, lon max, lat max
+      return { lat: parseFloat(feat.lat), lon: parseFloat(feat.lon), bbox: cityBbox };
     }).catch(() => null);
 
     if (cityCenterCoords && cityCenterCoords.bbox) cityBbox = cityCenterCoords.bbox;
@@ -387,21 +349,38 @@ router.post("/", async (req, res) => {
         if (travelStatus === "LOCAL" && userLat && userLon) {
           arrCoords = { lat: parseFloat(userLat), lon: parseFloat(userLon) };
           depCoords = await cachedGeocode(`${departurePoint}, ${dest}`, (q, prox) => _geocode(q, prox, cityBbox), cityCenterCoords)
-            .catch(async () => {
-              return cachedGeocode(departurePoint, (q) => _geocode(q, null, null)).catch(() => null);
-            });
+            .catch(() => null);
+          if (!depCoords) {
+             depCoords = await cachedGeocode(departurePoint, (q) => _geocode(q, null, null)).catch(() => null);
+          }
+          if (!depCoords && departurePoint.includes(',')) {
+             const shortName = departurePoint.split(',')[0].trim();
+             depCoords = await cachedGeocode(`${shortName}, ${dest}`, (q) => _geocode(q, null, null)).catch(() => null);
+             if (!depCoords) depCoords = await cachedGeocode(shortName, (q) => _geocode(q, null, null)).catch(() => null);
+          }
         } else {
           // Geocode Arrival and Departure points for accurate itinerary framing
           [arrCoords, depCoords] = await Promise.all([
-            cachedGeocode(`${arrivalPoint}, ${dest}`, (q, prox) => _geocode(q, prox, null), cityCenterCoords)
-              .catch(async () => {
-                // Try without destination context if it fails
-                return cachedGeocode(arrivalPoint, (q) => _geocode(q, null, null)).catch(() => null);
-              }),
-            cachedGeocode(`${departurePoint}, ${dest}`, (q, prox) => _geocode(q, prox, null), cityCenterCoords)
-              .catch(async () => {
-                return cachedGeocode(departurePoint, (q) => _geocode(q, null, null)).catch(() => null);
-              })
+            (async () => {
+              let coords = await cachedGeocode(`${arrivalPoint}, ${dest}`, (q) => _geocode(q, cityBbox), cityCenterCoords).catch(() => null);
+              if (!coords) coords = await cachedGeocode(arrivalPoint, (q) => _geocode(q, null)).catch(() => null);
+              if (!coords && arrivalPoint.includes(',')) {
+                const shortName = arrivalPoint.split(',')[0].trim();
+                coords = await cachedGeocode(`${shortName}, ${dest}`, (q) => _geocode(q, cityBbox), cityCenterCoords).catch(() => null);
+                if (!coords) coords = await cachedGeocode(shortName, (q) => _geocode(q, null)).catch(() => null);
+              }
+              return coords;
+            })(),
+            (async () => {
+              let coords = await cachedGeocode(`${departurePoint}, ${dest}`, (q) => _geocode(q, cityBbox), cityCenterCoords).catch(() => null);
+              if (!coords) coords = await cachedGeocode(departurePoint, (q) => _geocode(q, null)).catch(() => null);
+              if (!coords && departurePoint.includes(',')) {
+                const shortName = departurePoint.split(',')[0].trim();
+                coords = await cachedGeocode(`${shortName}, ${dest}`, (q) => _geocode(q, cityBbox), cityCenterCoords).catch(() => null);
+                if (!coords) coords = await cachedGeocode(shortName, (q) => _geocode(q, null)).catch(() => null);
+              }
+              return coords;
+            })()
           ]);
         }
 
@@ -467,8 +446,8 @@ router.post("/", async (req, res) => {
       departureDate
     });
 
-    log.debug("Calling Groq", { reqId, model: GROQ_MODEL });
-    const rawText = await callGroq(prompt);
+    log.debug("Calling AI provider");
+    const rawText = await callAI(prompt);
     console.log("--- RAW AI RESPONSE ---", rawText);
 
     // Step 4: Parse
@@ -476,28 +455,60 @@ router.post("/", async (req, res) => {
     try {
       itinerary = JSON.parse(rawText.replace(/```json|```/g, "").trim());
     } catch {
-      log.error("Groq returned malformed JSON", { reqId, preview: rawText.slice(0, 200) });
+      log.error("AI returned malformed JSON", { reqId, preview: rawText.slice(0, 200) });
       return res.status(500).json({ error: "AI returned malformed response — please retry." });
     }
     console.log("--- PARSED ITINERARY ---", itinerary);
 
-    // Step 5: High-Precision Verification (Verify every stop with Mapbox)
-    if (!usageTracker.isOverLimit && process.env.MAPBOX_ACCESS_TOKEN) {
-      log.debug("Verifying stop coordinates with Mapbox", { reqId });
-      const verifiedItems = await Promise.all((itinerary.items || []).map(async (item) => {
-        const query = `${item.title}, ${dest}`;
-        try {
-          const realCoords = await cachedGeocode(query, (q, prox) => _geocode(q, prox, cityBbox), cityCenterCoords);
-          if (realCoords && cityCenterCoords) {
-            const dist = Math.sqrt(Math.pow(realCoords.lat - cityCenterCoords.lat, 2) + Math.pow(realCoords.lon - cityCenterCoords.lon, 2));
-            if (dist < 0.00001) return item; 
-            return { ...item, lat: realCoords.lat, lon: realCoords.lon };
-          }
-        } catch (e) { log.warn(`Coord verification failed for ${item.title}`, e); }
-        return item; 
-      }));
-      itinerary.items = verifiedItems;
+    // Step 4.5: Ensure Frame Points (Arrival/Departure) are present
+    if (itinerary.items && itinerary.items.length > 0) {
+      const first = itinerary.items[0];
+      const last = itinerary.items[itinerary.items.length - 1];
+
+      // If last item isn't the departure point, append it
+      if (!last.title.toLowerCase().includes(departurePoint.split(',')[0].toLowerCase()) && 
+          last.category !== 'departure') {
+        itinerary.items.push({
+          time: leaveBy,
+          end_time: departureTime,
+          title: departurePoint,
+          subtitle: dest,
+          description: `Arrival at ${departurePoint} for your departure.`,
+          category: 'departure',
+          must_try: 'Check in and relax before your journey.',
+          tip: 'Have your tickets and ID ready.',
+          getting_there: `${transportMode} | ${travelMins} min`,
+          cost: 'Free',
+          lat: depCoords.lat,
+          lon: depCoords.lon,
+          photo_query: `${departurePoint} ${dest}`
+        });
+      }
     }
+
+    // Step 5: High-Precision Verification (Verify every stop with Nominatim)
+    log.debug("Verifying stop coordinates with OSM", { reqId });
+    const verifiedItems = await Promise.all((itinerary.items || []).map(async (item, idx, array) => {
+      // RULE: Always use precise geocoded arrival/departure coords for the frame
+      if (idx === 0) {
+        return { ...item, lat: arrCoords.lat, lon: arrCoords.lon };
+      }
+      if (idx === array.length - 1) {
+        return { ...item, lat: depCoords.lat, lon: depCoords.lon };
+      }
+
+      const query = `${item.title}, ${dest}`;
+      try {
+        const realCoords = await cachedGeocode(query, (q) => _geocode(q, cityBbox), cityCenterCoords);
+        if (realCoords && cityCenterCoords) {
+          const dist = Math.sqrt(Math.pow(realCoords.lat - cityCenterCoords.lat, 2) + Math.pow(realCoords.lon - cityCenterCoords.lon, 2));
+          if (dist < 0.00001) return item; 
+          return { ...item, lat: realCoords.lat, lon: realCoords.lon };
+        }
+      } catch (e) { log.warn(`Coord verification failed for ${item.title}`, e); }
+      return item; 
+    }));
+    itinerary.items = verifiedItems;
 
     // MANDATORY SAFETY SNAP: Prevent any pin from landing in the ocean
     itinerary.items = (itinerary.items || []).map(item => {
@@ -515,8 +526,7 @@ router.post("/", async (req, res) => {
       leaveBy,
       durationMs:          Date.now() - t0,
       generatedAt:         new Date().toISOString(),
-      model:               GROQ_MODEL,
-      mapboxOverLimit:     usageTracker.isOverLimit
+      model:               "AI Provider"
     };
 
     log.info("Itinerary generated", {

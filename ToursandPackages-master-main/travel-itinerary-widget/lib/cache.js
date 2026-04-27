@@ -50,7 +50,7 @@ export const usageTracker = new UsageTracker();
 const DEFAULT_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 
 class TTLCache {
-  constructor(ttlMs = DEFAULT_TTL_MS, maxSize = 500) {
+  constructor(ttlMs = DEFAULT_TTL_MS, maxSize = 2000) {
     this._store  = new Map();
     this._ttl    = ttlMs;
     this._max    = maxSize;

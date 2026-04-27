@@ -12,9 +12,9 @@ They open your website — this widget:
 1. **Detects GPS** via the browser for "I'm Already Here" mode.
 2. Accepts arrival/departure points, times, and interests.
 3. Your Node.js server orchestrates:
-   - **Mapbox** → High-precision geocoding for the destination and transit hubs.
+   - **Nominatim** → High-precision geocoding for the destination and transit hubs.
    - **Overpass API** → Real restaurants, landmarks, and resorts from OpenStreetMap.
-   - **Mapbox Directions** → Real road travel time to ensure you reach your departure on time.
+   - **OSRM** → Real road travel time to ensure you reach your departure on time.
    - **Groq AI (Llama 3.3)** → Crafts a vivid, time-mapped itinerary tailored to budget and group size.
 4. Renders an **animated timeline** — every stop with time window, vivid description, must-try, insider tip, transport info, and cost.
 5. **Departure alert** pinned at the top — "Leave by 18:10" to avoid missing your transport.
@@ -28,11 +28,11 @@ travel-itinerary-widget/
 ├── server.js               ← Standalone Express server
 ├── embed.js                ← Mount into an EXISTING Express app
 ├── package.json
-├── .env                    ← Your API Keys (Groq, Mapbox)
+├── .env                    ← Your API Keys (Groq)
 ├── test.js                 ← CLI test runner
 │
 ├── routes/
-│   ├── itinerary.js        ← Geocode → POIs → Mapbox → Groq AI
+│   ├── itinerary.js        ← Geocode → POIs → OSRM → Groq AI
 │   └── geocode.js          ← Geocoding proxy
 │
 ├── middleware/
@@ -58,7 +58,6 @@ npm install
 # 2. Configure
 # Create a .env file and add:
 GROQ_API_KEY=gsk_xxx
-MAPBOX_ACCESS_TOKEN=pk.xxx
 
 # 3. Start
 npm start
@@ -179,7 +178,6 @@ Itinerary results from Groq are **not cached** — each call is unique creative 
 
 ```env
 GROQ_API_KEY=gsk_xxx             # Required (get at console.groq.com)
-MAPBOX_ACCESS_TOKEN=pk.xxx       # Recommended (get at mapbox.com)
 PORT=3001                        # Default: 3001
 GROQ_MODEL=llama-3.3-70b-versatile
 RATE_LIMIT=20                   # req/IP/15min
