@@ -90,10 +90,7 @@ const Home = () => {
                   <span>Start Exploring</span>
                 </button>
                 
-                <button className="text-white text-base font-bold flex items-center gap-3 group transition-opacity hover:opacity-80">
-                  <span className="material-symbols-outlined text-3xl font-light">play_circle</span>
-                  <span>Watch Video</span>
-                </button>
+
               </motion.div>
             </div>
           </div>
