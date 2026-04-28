@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:widget": "cd travel-itinerary-widget && node server.js",
+    "dev:widget": "cd travel-itinerary-widget && npm run dev",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:widget\"",
     "build": "vite build",
     "lint": "eslint .",

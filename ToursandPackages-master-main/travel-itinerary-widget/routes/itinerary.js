@@ -12,29 +12,28 @@ import { createLogger } from "../lib/logger.js";
 const router = Router();
 const log    = createLogger("itinerary");
 
-// ── Groq API call (pure fetch, zero SDK needed) ──────────────
+// ── NVIDIA NIM API call (pure fetch, zero SDK needed) ────────
+const NVIDIA_MODEL   = "meta/llama-3.1-70b-instruct";
+const NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
 
-const GROQ_MODEL   = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-
-async function callGroq(prompt) {
-  const key = process.env.GROQ_API_KEY;
+async function callNvidia(prompt) {
+  const key = process.env.NVIDIA_API_KEY;
   if (!key) {
-    log.error("GROQ_API_KEY is missing from process.env");
-    throw new Error("GROQ_API_KEY is not set in .env — get one free at console.groq.com");
+    log.error("NVIDIA_API_KEY is missing from process.env");
+    throw new Error("NVIDIA_API_KEY is not set in .env");
   }
 
-  log.debug("Sending request to Groq", { model: GROQ_MODEL, promptLength: prompt.length });
+  log.debug("Sending request to NVIDIA", { model: NVIDIA_MODEL, promptLength: prompt.length });
 
-  const res = await fetch(GROQ_API_URL, {
+  const res = await fetch(NVIDIA_API_URL, {
     method:  "POST",
     headers: {
       "Content-Type":  "application/json",
       "Authorization": `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model:       GROQ_MODEL,
-      temperature: 0.7,
+      model:       NVIDIA_MODEL,
+      temperature: 0.2,
       max_tokens:  3500,
       response_format: { type: "json_object" },
       messages: [
@@ -52,19 +51,15 @@ async function callGroq(prompt) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    log.error("Groq API error", { status: res.status, error: err.error?.message || res.statusText });
-    
-    if (res.status === 429) {
-      throw new Error("Free tier rate limit hit — please wait a minute and try again.");
-    }
-    throw new Error(`Groq API error ${res.status}: ${err?.error?.message || res.statusText}`);
+    log.error("NVIDIA API error", { status: res.status, error: err.error?.message || res.statusText });
+    throw new Error(`NVIDIA API error ${res.status}: ${err?.error?.message || res.statusText}`);
   }
 
   const data = await res.json();
   const text = data?.choices?.[0]?.message?.content;
   if (!text) {
-    log.error("Empty response from Groq", { data });
-    throw new Error("Empty response from Groq");
+    log.error("Empty response from NVIDIA", { data });
+    throw new Error("Empty response from NVIDIA");
   }
   return text;
 }
@@ -467,8 +462,8 @@ router.post("/", async (req, res) => {
       departureDate
     });
 
-    log.debug("Calling Groq", { reqId, model: GROQ_MODEL });
-    const rawText = await callGroq(prompt);
+    log.debug("Calling NVIDIA", { reqId, model: NVIDIA_MODEL });
+    const rawText = await callNvidia(prompt);
     console.log("--- RAW AI RESPONSE ---", rawText);
 
     // Step 4: Parse
@@ -515,7 +510,7 @@ router.post("/", async (req, res) => {
       leaveBy,
       durationMs:          Date.now() - t0,
       generatedAt:         new Date().toISOString(),
-      model:               GROQ_MODEL,
+      model:               NVIDIA_MODEL,
       mapboxOverLimit:     usageTracker.isOverLimit
     };
 

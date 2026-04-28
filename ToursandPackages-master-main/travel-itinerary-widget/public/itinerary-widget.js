@@ -348,9 +348,15 @@
 
         <div style="margin-bottom:2rem; position:relative">
           <label style="display:block; font-size:.8rem; font-weight:800; text-transform:uppercase; color:#64748B; margin-bottom:.8rem; letter-spacing:.05em">Target City</label>
-          <div class="tiw-autocomplete-container">
-            <input type="text" id="tiw-input-dest" autocomplete="off" placeholder="e.g. Kozhikode, Kerala" style="width:100%; padding:1.2rem 1.5rem; border-radius:16px; border:2px solid #F1F5F9; font-size:1.1rem; padding-right:55px; background:#fff !important; color:#0F172A !important">
-            <button id="tiw-btn-re-detect" title="Auto-detect location" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:20px; z-index:10">📍</button>
+          <div class="tiw-autocomplete-container" style="position:relative">
+            <div style="position:relative">
+              <input type="text" id="tiw-input-dest" autocomplete="off" placeholder="e.g. Kozhikode, Kerala" style="width:100%; padding:1.2rem 1.5rem; border-radius:16px; border:2px solid #F1F5F9; font-size:1.1rem; padding-right:85px; background:#fff !important; color:#0F172A !important">
+              <div style="position:absolute; right:12px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:8px">
+                <button id="tiw-btn-clear-dest" title="Clear destination" style="background:rgba(148,163,184,0.1); border:none; cursor:pointer; font-size:14px; color:#64748B; width:26px; height:26px; border-radius:50%; display:none; align-items:center; justify-content:center; font-weight:bold">✕</button>
+                <button id="tiw-btn-re-detect" title="Auto-detect location" style="background:none; border:none; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center">📍</button>
+              </div>
+            </div>
+            <div id="tiw-dest-sub-info" style="font-size:0.75rem; color:#CBD5E1; margin-top:6px; padding-left:1rem; display:none; font-weight:600"></div>
             <div id="tiw-suggestions-dest" class="tiw-suggestions"></div>
           </div>
         </div>
@@ -508,6 +514,7 @@
     list.style.overflowY = "auto";
 
     input.addEventListener("input", (e) => {
+      if (!e.isTrusted) return;
       const val = e.target.value.trim();
       clearTimeout(timeout);
       
@@ -663,10 +670,18 @@
       if (city) {
         state.dest = city;
         const input = root.querySelector("#tiw-input-dest");
+        const subInfo = root.querySelector("#tiw-dest-sub-info");
+        const clearBtn = root.querySelector("#tiw-btn-clear-dest");
+
         if (input) {
           const titleCase = city.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
           input.value = titleCase;
           state.dest = titleCase;
+          if (clearBtn) clearBtn.style.display = "flex";
+        }
+        if (subInfo && state.userLat && state.userLon) {
+          subInfo.innerText = `📍 ${state.userLat.toFixed(4)}, ${state.userLon.toFixed(4)}`;
+          subInfo.style.display = "block";
         }
       } else {
         console.warn("TIW: No location could be determined automatically.");
@@ -1089,6 +1104,27 @@
       // Basic Actions
       root.querySelector("#tiw-btn-detect").onclick = () => detectLocation(root);
       root.querySelector("#tiw-btn-re-detect")?.addEventListener("click", () => detectLocation(root));
+      
+      const clearBtn = root.querySelector("#tiw-btn-clear-dest");
+      const destInp = root.querySelector("#tiw-input-dest");
+      const subInfo = root.querySelector("#tiw-dest-sub-info");
+      
+      if (clearBtn && destInp) {
+        clearBtn.onclick = () => {
+          destInp.value = "";
+          state.dest = "";
+          state.userLat = null;
+          state.userLon = null;
+          clearBtn.style.display = "none";
+          if (subInfo) subInfo.style.display = "none";
+          destInp.focus();
+        };
+
+        destInp.addEventListener("input", () => {
+          clearBtn.style.display = destInp.value ? "flex" : "none";
+          if (!destInp.value && subInfo) subInfo.style.display = "none";
+        });
+      }
       root.querySelector("#tiw-btn-generate").onclick = () => generate(root);
       root.querySelector("#tiw-btn-generate-transport").onclick = () => generateTransport(root);
       root.querySelector("#tiw-btn-transport-back").onclick = () => showPhase("welcome");

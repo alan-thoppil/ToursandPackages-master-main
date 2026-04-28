@@ -137,20 +137,6 @@ const Home = () => {
           .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         `}} />
 
-          <button
-            onClick={() => scrollCategories('left')}
-            className="absolute left-2 md:-left-14 top-[35%] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-slate-700 hover:text-primary hover:scale-110 transition-all z-10 opacity-0 group-hover:opacity-100 border border-slate-100 hidden md:flex"
-          >
-            <span className="material-symbols-outlined text-2xl">chevron_left</span>
-          </button>
-
-          <button
-            onClick={() => scrollCategories('right')}
-            className="absolute right-2 md:-right-14 top-[35%] w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-slate-700 hover:text-primary hover:scale-110 transition-all z-10 opacity-0 group-hover:opacity-100 border border-slate-100 hidden md:flex"
-          >
-            <span className="material-symbols-outlined text-2xl">chevron_right</span>
-          </button>
-
           <div ref={categoryScrollRef} className="flex overflow-x-auto gap-0 pt-8 pb-4 items-start snap-x hide-scroll w-full smooth-scroll" style={{ scrollBehavior: 'smooth' }}>
             {[
               { name: "Stay", img: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=400&h=400&fit=crop" },
@@ -428,15 +414,12 @@ const Home = () => {
                       ))}
                       <span className="text-xs text-slate-500 ml-2 font-bold uppercase tracking-widest">({item.reviews} reviews)</span>
                     </div>
-                    <div className="flex justify-between items-center border-t border-slate-100 dark:border-slate-800 pt-6">
-                      <div className="flex flex-col">
-                        <span className="text-xs text-slate-400 font-bold uppercase tracking-tighter">Starting at</span>
-                        <span className="text-3xl font-black text-primary leading-none">{item.price}</span>
+                      <div className="flex justify-between items-center border-t border-slate-100 dark:border-slate-800 pt-6">
+                        <div className="flex flex-col">
+                          <span className="text-xs text-slate-400 font-bold uppercase tracking-tighter">Starting at</span>
+                          <span className="text-3xl font-black text-primary leading-none">{item.price}</span>
+                        </div>
                       </div>
-                      <Link to="/details" className="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-primary/20">
-                        <span className="material-symbols-outlined">arrow_forward</span>
-                      </Link>
-                    </div>
                   </div>
                 </motion.div>
               ))}
