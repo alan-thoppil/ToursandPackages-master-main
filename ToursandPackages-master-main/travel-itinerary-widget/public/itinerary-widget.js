@@ -182,7 +182,7 @@
       background: #F8FAFC !important; border-color: #E2E8F0; color: #475569;
     }
     #tiw-map-container {
-      width: 100%; height: 360px; border-radius: 14px; margin-bottom: 2.5rem;
+      width: 100%; height: 500px; margin-bottom: 2.5rem;
       border: 1px solid #E2E8F0; overflow: hidden; position: relative;
       background: #F1F5F9; transition: all 0.3s ease;
       box-shadow: inset 0 0 20px rgba(0,0,0,0.02);
@@ -853,7 +853,7 @@
         ];
 
         const group = L.featureGroup(markers);
-        map.fitBounds(group.getBounds().pad(0.2));
+        map.fitBounds(group.getBounds().pad(0.1));
 
         setTimeout(() => map.invalidateSize(), 500);
 
@@ -954,7 +954,7 @@
         });
         if (items.length) {
            const group = new L.featureGroup(items.map(i => L.marker([i.lat, i.lon])));
-           mapInstance.fitBounds(group.getBounds().pad(0.1));
+           mapInstance.fitBounds(group.getBounds().pad(0.05));
         }
       }
     }, 100);
@@ -988,9 +988,17 @@
     }
     if (mapInstance) { try { mapInstance.remove(); } catch(e){} mapInstance = null; }
     
-    mapInstance = L.map(el, {attributionControl: false}).setView([items[0].lat, items[0].lon], 13);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; OpenStreetMap contributors'
+    mapInstance = L.map(el, {attributionControl: false}).setView([items[0].lat, items[0].lon], 15);
+    
+    // Using Esri World Imagery for a more premium satellite view
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri'
+    }).addTo(mapInstance);
+    
+    // Add a subtle labels layer on top for readability
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; CartoDB',
+      pane: 'shadowPane' // Ensure labels are on top of everything but below popups
     }).addTo(mapInstance);
 
     items.forEach(i => {
@@ -1005,7 +1013,7 @@
     });
 
     const group = new L.featureGroup(items.map(i => L.marker([i.lat, i.lon])));
-    mapInstance.fitBounds(group.getBounds().pad(0.1));
+    mapInstance.fitBounds(group.getBounds().pad(0.05));
 
     // Add Route Line via OSRM (Public instance)
     if (items.length > 1) {

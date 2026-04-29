@@ -248,7 +248,7 @@ const Suggestions = () => {
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             
             {/* List Side */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex-1 space-y-6 w-full">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full lg:w-[600px] shrink-0 space-y-6">
               <div className="flex items-center justify-between mb-6 px-2">
                  <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Curated Recommendations</h2>
                  <span className="px-4 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full text-sm font-bold border border-slate-300 dark:border-slate-600">
@@ -308,73 +308,134 @@ const Suggestions = () => {
               )}
             </motion.div>
 
-            {/* Sticky Map Side */}
-            <div className="w-full lg:w-[450px] sticky top-32 h-[600px] hidden lg:block">
-               <div className="w-full h-full bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl border-8 border-white dark:border-slate-700 overflow-hidden relative group">
+            {/* Sticky Detail & Map Side */}
+            <div className="flex-1 sticky top-28 h-[calc(100vh-140px)] hidden lg:block pb-8">
+               <div className="w-full h-full bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden relative flex flex-col">
                   {selectedResult ? (
                     <>
-                      <iframe
-                        width="100%"
-                        height="100%"
-                        style={{ border: 0, filter: "contrast(1.1) brightness(0.9)" }}
-                        loading="lazy"
-                        allowFullScreen
-                        src={`https://www.google.com/maps/embed/v1/place?key=&q=${selectedResult.lat},${selectedResult.lng}&zoom=15`}
-                        title="Google Map"
-                        className="transition-opacity duration-500"
-                        srcDoc={`
-                          <!DOCTYPE html>
-                          <html>
-                            <head>
-                              <style>
-                                body, html, iframe { margin: 0; height: 100%; width: 100%; overflow: hidden; background: #0f172a; }
-                              </style>
-                            </head>
-                            <body>
-                              <iframe 
-                                frameborder="0" 
-                                scrolling="no" 
-                                marginheight="0" 
-                                marginwidth="0" 
-                                src="https://maps.google.com/maps?q=${selectedResult.lat},${selectedResult.lng}&t=&z=14&ie=UTF8&iwloc=&output=embed"
-                              ></iframe>
-                            </body>
-                          </html>
-                        `}
-                      ></iframe>
-                      <div className="absolute top-6 left-6 right-6">
-                         <motion.div 
-                           key={selectedResult.id}
-                           initial={{ opacity: 0, y: -20 }}
-                           animate={{ opacity: 1, y: 0 }}
-                           className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-4 rounded-2xl shadow-2xl border border-white/20"
-                         >
-                            <p className="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em] mb-1">Active Location</p>
-                            <h4 className="text-lg font-black text-slate-800 dark:text-white leading-tight">{selectedResult.name}</h4>
-                            <div className="flex items-center gap-2 mt-2">
-                              <span className="text-[10px] font-bold text-slate-400">Lat: {selectedResult.lat.toFixed(4)}</span>
-                              <span className="text-[10px] font-bold text-slate-400">Lon: {selectedResult.lng.toFixed(4)}</span>
-                              <a 
-                                href={`https://www.google.com/maps/search/?api=1&query=${selectedResult.lat},${selectedResult.lng}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="ml-auto text-blue-500 hover:text-blue-600"
-                              >
-                                <span className="material-symbols-outlined text-lg">open_in_new</span>
-                              </a>
-                            </div>
-                         </motion.div>
+                      {/* Place Image Header */}
+                      <div className="w-full h-48 shrink-0 relative overflow-hidden">
+                        <img src={selectedResult.image} className="w-full h-full object-cover" alt={selectedResult.name} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <div className="absolute bottom-4 left-6">
+                           <span className="px-3 py-1 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg">
+                              Selected Spot
+                           </span>
+                        </div>
+                      </div>
+
+                      {/* Place Info Content */}
+                      <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
+                        <div className="flex justify-between items-start mb-4">
+                           <h4 className="text-3xl font-black text-slate-800 dark:text-white leading-tight">{selectedResult.name}</h4>
+                           <div className="flex flex-col items-end">
+                              <div className="flex items-center gap-1 text-orange-500">
+                                 <span className="material-symbols-outlined text-lg font-bold">star</span>
+                                 <span className="text-xl font-black">{selectedResult.rating.toFixed(1)}</span>
+                              </div>
+                              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Global Rating</span>
+                           </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 mb-6">
+                           <span className="px-4 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-600 flex items-center gap-2">
+                              <span className="material-symbols-outlined text-sm">category</span>
+                              {category}
+                           </span>
+                           <span className="px-4 py-1.5 bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 rounded-xl text-xs font-bold border border-green-200 dark:border-green-500/30 flex items-center gap-2">
+                              <span className="material-symbols-outlined text-sm">verified</span>
+                              AI Verified
+                           </span>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-3 mb-8">
+                           <a 
+                             href={`https://www.google.com/maps/dir/?api=1&destination=${selectedResult.lat},${selectedResult.lng}`}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             className="flex-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-3 rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-orange-500 hover:text-white transition-all shadow-lg"
+                           >
+                              <span className="material-symbols-outlined text-lg">directions</span>
+                              Directions
+                           </a>
+                           <button className="p-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-orange-100 hover:text-orange-600 transition-colors">
+                              <span className="material-symbols-outlined">bookmark</span>
+                           </button>
+                           <button className="p-3 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-2xl hover:bg-orange-100 hover:text-orange-600 transition-colors">
+                              <span className="material-symbols-outlined">share</span>
+                           </button>
+                        </div>
+
+                        {/* Description Section */}
+                        <div className="mb-8 p-6 bg-slate-50 dark:bg-slate-700/50 rounded-3xl border border-slate-100 dark:border-slate-600">
+                           <h5 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                              <span className="material-symbols-outlined text-sm">description</span>
+                              Why visit?
+                           </h5>
+                           <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed italic font-medium">"{selectedResult.reason}"</p>
+                        </div>
+
+                        {/* Location Header */}
+                        <h5 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 px-1">
+                           <span className="material-symbols-outlined text-sm">location_on</span>
+                           Live Location Map
+                        </h5>
+
+                        {/* Map Container (Integrated) */}
+                        <div className="w-full h-[450px] rounded-3xl overflow-hidden border-4 border-white dark:border-slate-700 shadow-xl relative">
+                           <iframe
+                             width="100%"
+                             height="100%"
+                             style={{ border: 0 }}
+                             loading="lazy"
+                             srcDoc={`
+                               <!DOCTYPE html>
+                               <html>
+                                 <head>
+                                   <style>
+                                     body, html, iframe { margin: 0; height: 100%; width: 100%; overflow: hidden; background: #0f172a; }
+                                   </style>
+                                 </head>
+                                 <body>
+                                   <iframe 
+                                     frameborder="0" 
+                                     scrolling="no" 
+                                     marginheight="0" 
+                                     marginwidth="0" 
+                                     src="https://maps.google.com/maps?q=${selectedResult.lat},${selectedResult.lng}&t=h&z=16&ie=UTF8&iwloc=&output=embed"
+                                   ></iframe>
+                                 </body>
+                               </html>
+                             `}
+                           ></iframe>
+                        </div>
+                        
+                        <div className="flex items-center gap-4 mt-4 px-2">
+                           <div className="text-[10px] font-bold text-slate-400 flex flex-col">
+                              <span>Latitude: {selectedResult.lat.toFixed(6)}</span>
+                              <span>Longitude: {selectedResult.lng.toFixed(6)}</span>
+                           </div>
+                           <a 
+                             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedResult.name + ' ' + selectedResult.lat + ',' + selectedResult.lng)}`}
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             className="ml-auto text-blue-500 hover:text-blue-600 flex items-center gap-1 text-[10px] font-black uppercase tracking-widest"
+                           >
+                             Full Map View <span className="material-symbols-outlined text-sm">open_in_new</span>
+                           </a>
+                        </div>
                       </div>
                     </>
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center p-12 text-center bg-slate-100 dark:bg-slate-900/50">
-                       <span className="material-symbols-outlined text-6xl text-slate-300 mb-4">map</span>
-                       <h4 className="text-xl font-bold text-slate-400">Select a spot to view it on the map</h4>
+                    <div className="w-full h-full flex flex-col items-center justify-center p-12 text-center bg-slate-50 dark:bg-slate-900/50">
+                       <div className="w-24 h-24 bg-white dark:bg-slate-800 rounded-3xl shadow-xl flex items-center justify-center mb-6">
+                          <span className="material-symbols-outlined text-5xl text-orange-500">explore</span>
+                       </div>
+                       <h4 className="text-xl font-black text-slate-800 dark:text-white mb-2">Ready to explore?</h4>
+                       <p className="text-slate-400 text-sm font-medium">Select a curated spot from the list to see detailed insights and live location data.</p>
                     </div>
                   )}
-                  
-                  {/* Decorative Gradient Overlay */}
-                  <div className="absolute inset-0 pointer-events-none border-[1px] border-white/10 rounded-[2.5rem]"></div>
                </div>
             </div>
           </div>
