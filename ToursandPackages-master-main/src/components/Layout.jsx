@@ -1,9 +1,15 @@
 import { Link, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import AuthModal from './AuthModal'
 
 const Layout = ({ children }) => {
   const [scrolled, setScrolled] = useState(false)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [user, setUser] = useState(null)
+  
   const location = useLocation()
   const isHomePage = location.pathname === '/'
 
@@ -12,8 +18,22 @@ const Layout = ({ children }) => {
       setScrolled(window.scrollY > window.innerHeight * 0.95)
     }
     window.addEventListener('scroll', handleScroll)
+    
+    // Check if user is logged in
+    const storedUser = localStorage.getItem('currentUser')
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+    
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser')
+    setUser(null)
+    setIsProfileDropdownOpen(false)
+    setIsMobileMenuOpen(false)
+  }
 
   const isDarkNav = scrolled || !isHomePage
 
@@ -32,14 +52,126 @@ const Layout = ({ children }) => {
               <Link to="/listing" className={`text-xs font-bold uppercase tracking-widest transition-colors duration-300 ${isDarkNav ? 'text-slate-700 hover:text-primary drop-shadow-none' : 'text-white hover:text-white/80 drop-shadow-md'}`}>Tours</Link>
               <a className={`text-xs font-bold uppercase tracking-widest transition-colors duration-300 ${isDarkNav ? 'text-slate-700 hover:text-primary drop-shadow-none' : 'text-white hover:text-white/80 drop-shadow-md'}`} href="#">About</a>
               <a className={`text-xs font-bold uppercase tracking-widest transition-colors duration-300 ${isDarkNav ? 'text-slate-700 hover:text-primary drop-shadow-none' : 'text-white hover:text-white/80 drop-shadow-md'}`} href="#">Contact</a>
-              <button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2.5 rounded-full text-xs font-black tracking-widest transition-all shadow-lg hover:scale-105">SIGN IN</button>
+              
+              {user ? (
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    className="flex items-center gap-2 focus:outline-none group"
+                  >
+                    <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-black text-primary uppercase shadow-md transition-all group-hover:scale-105">
+                      {user.name ? user.name.charAt(0) : 'U'}
+                    </div>
+                    <span className={`hidden lg:inline text-xs font-bold uppercase tracking-wider transition-colors duration-300 ${isDarkNav ? 'text-slate-700' : 'text-white'}`}>
+                      {user.name.split(' ')[0]}
+                    </span>
+                  </button>
+                  
+                  {isProfileDropdownOpen && (
+                    <div className="absolute right-0 mt-3 w-48 rounded-2xl bg-white p-2 shadow-2xl border border-slate-100 dark:bg-slate-950 dark:border-slate-800 text-slate-800 dark:text-slate-200">
+                      <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-900 mb-1">
+                        <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">{user.name}</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate">{user.email}</p>
+                      </div>
+                      <button className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex items-center gap-2">
+                        <span className="material-symbols-outlined text-base">explore</span> My Bookings
+                      </button>
+                      <button className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors flex items-center gap-2">
+                        <span className="material-symbols-outlined text-base">settings</span> Settings
+                      </button>
+                      <hr className="my-1 border-slate-100 dark:border-slate-900" />
+                      <button 
+                        onClick={handleLogout}
+                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors flex items-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-base">logout</span> Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-2.5 rounded-full text-xs font-black tracking-widest transition-all shadow-lg hover:scale-105"
+                >
+                  SIGN IN
+                </button>
+              )}
             </nav>
-            <div className={`md:hidden transition-colors duration-300 ${isDarkNav ? 'text-slate-900 drop-shadow-none' : 'text-white drop-shadow-lg'}`}>
-              <span className="material-symbols-outlined cursor-pointer">menu</span>
+            <div 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={`md:hidden transition-colors duration-300 cursor-pointer ${isDarkNav ? 'text-slate-900 drop-shadow-none' : 'text-white drop-shadow-lg'}`}
+            >
+              <span className="material-symbols-outlined">{isMobileMenuOpen ? 'close' : 'menu'}</span>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-x-0 top-14 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 p-6 md:hidden flex flex-col gap-4 shadow-2xl"
+          >
+            <Link 
+              to="/listing" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-sm font-bold uppercase tracking-widest text-slate-700 dark:text-slate-350 hover:text-primary transition-colors py-2"
+            >
+              Tours
+            </Link>
+            <a 
+              href="#" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-sm font-bold uppercase tracking-widest text-slate-700 dark:text-slate-350 hover:text-primary transition-colors py-2"
+            >
+              About
+            </a>
+            <a 
+              href="#" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-sm font-bold uppercase tracking-widest text-slate-700 dark:text-slate-350 hover:text-primary transition-colors py-2"
+            >
+              Contact
+            </a>
+            <hr className="border-slate-100 dark:border-slate-900" />
+            {user ? (
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3 py-2">
+                  <div className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-sm font-black text-primary uppercase">
+                    {user.name ? user.name.charAt(0) : 'U'}
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">{user.name}</p>
+                    <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={handleLogout}
+                  className="w-full text-center py-3 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-bold text-xs tracking-widest uppercase transition-all shadow-md mt-2"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => {
+                  setIsMobileMenuOpen(false)
+                  setIsAuthModalOpen(true)
+                }}
+                className="w-full text-center py-3.5 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-950 font-black text-xs tracking-widest uppercase transition-all shadow-lg hover:bg-slate-800"
+              >
+                SIGN IN
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
 
       <main className={`flex-grow ${!isHomePage ? 'pt-24' : ''}`}>
         {children}
@@ -101,6 +233,12 @@ const Layout = ({ children }) => {
           </div>
         </div>
       </footer>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={(userData) => setUser(userData)}
+      />
     </div>
   )
 }
