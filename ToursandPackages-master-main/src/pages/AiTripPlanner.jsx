@@ -17,7 +17,7 @@ const AiTripPlanner = () => {
     const script = document.createElement('script');
     script.src = "/widget/itinerary-widget.js";
     script.async = true;
-    script.dataset.apiBase = "http://localhost:3001";
+    script.dataset.apiBase = "";
     script.dataset.target = "#itinerary-widget-container";
     document.body.appendChild(script);
 
